@@ -43,7 +43,7 @@ describe Operation do
       end
 
       before do
-        operation.subscribe(logger)
+        operation.instrument(logger)
         operation.execute('')
       end
 
@@ -91,7 +91,7 @@ describe Operation do
     let(:last_message) { logger.messages.last }
 
     before do
-      operation.subscribe(logger)
+      operation.instrument(logger)
       operation.use operational_unit
     end
 

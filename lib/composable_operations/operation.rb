@@ -24,7 +24,7 @@ class Operation
 
         mod.module_eval do
           define_method(name) do |*args|
-            notify_subscribers(name, *args)
+            notify_instruments(name, *args)
           end
         end
 
@@ -40,21 +40,15 @@ class Operation
 
   def initialize(&configuration)
     @operational_units = []
+    @instruments = []
 
     configuration ||= self.class.default_configuration
     configuration.call(self) unless configuration.nil?
   end
 
-  def subscribers
-    @subscribers.dup
-  end
-
-  def subscribe(subscriber)
-    (@subscribers ||= []) << subscriber
-  end
-
-  def unsubscribe(subscriber)
-    (@subscribers || []).remove(subscriber)
+  def instrument(instrument)
+    @instruments << instantiate(instrument)
+    nil
   end
 
   def use(operational_unit)
@@ -96,8 +90,8 @@ class Operation
       value.is_a?(Class) ? value.new : value
     end
 
-    def notify_subscribers(event, *args)
-      (@subscribers || []).each do |subscriber|
+    def notify_instruments(event, *args)
+      (@instruments || []).each do |subscriber|
         subscriber.public_send("on_#{event}", self, *args)
       end
     end
