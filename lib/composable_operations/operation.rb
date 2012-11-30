@@ -76,7 +76,7 @@ class Operation
 
     did_execute(data, success)
 
-    success
+    success ? data : nil
   end
   alias execute call
 

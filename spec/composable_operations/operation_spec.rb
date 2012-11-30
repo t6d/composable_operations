@@ -13,7 +13,7 @@ describe Operation do
   context "when provided with an empty configuration block" do
 
     specify "the preparation should be successful" do
-      operation.execute('').should be_true
+      operation.execute('').should be
     end
 
   end
@@ -25,7 +25,7 @@ describe Operation do
     end
 
     specify "the preparation should not be successful" do
-      operation.execute('').should == false
+      operation.execute('').should_not be
     end
 
     context "when instrumented with a simple logger" do
@@ -100,7 +100,7 @@ describe Operation do
       let!(:result) { operation.execute('crispy bacon') }
 
       specify "the preparation should be not successful" do
-        result.should be == false
+        result.should_not be
       end
 
       specify "the last log message should state that something went wrong" do
@@ -114,7 +114,7 @@ describe Operation do
       let!(:result) { operation.execute('chunky bacon') }
 
       specify "the preparation should be successful" do
-        result.should be == true
+        result.should be == 'chunky bacon'
       end
 
       specify "the last log message should state that everything went well" do
