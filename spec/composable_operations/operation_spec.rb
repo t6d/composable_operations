@@ -79,7 +79,7 @@ describe Operation do
           end
 
           def on_did_execute_operational_unit(sender, operational_unit, data, success)
-            messages << [operational_unit.description, (success ? 'succeeded' : "failed because #{operational_unit.reason}")].join(' ')
+            messages << [operational_unit.description, (success ? 'succeeded' : "failed because #{operational_unit.failure}")].join(' ')
           end
 
         end
