@@ -59,9 +59,11 @@ class Operation
   end
 
   def call(data)
+    return if data.nil?
     data = prepare(data)
     return finalize(data) if operational_units.empty?
-    execute_operational_units(data) ? finalize(data) : nil
+    result = execute_operational_units(data)
+    finalize(result)
   end
   alias execute call
 
@@ -70,6 +72,7 @@ class Operation
     attr_reader :operational_units
 
     def prepare(data)
+      return if data.nil?
       preparator.nil? ? data : instantiate(preparator).call(data)
     end
 
@@ -77,24 +80,27 @@ class Operation
       will_execute(data)
       success = true
       operational_units.each do |operational_unit|
-        if !execute_operational_unit(operational_unit, data)
-          success = false
-          break
-        end
+        data = execute_operational_unit(operational_unit, data)
+        success = !!data
+        break unless success
       end
       did_execute(data, success)
-      success
+      data
     end
 
     def execute_operational_unit(operational_unit, data)
       operational_unit = instantiate(operational_unit)
+
       will_execute_operational_unit(operational_unit, data)
-      success = !!operational_unit.call(data)
+      data = operational_unit.call(data)
+      success = !!data
       did_execute_operational_unit(operational_unit, data, success)
-      success
+
+      data
     end
 
     def finalize(data)
+      return if data.nil?
       finalizer.nil? ? data : instantiate(finalizer).call(data)
     end
 

@@ -53,7 +53,7 @@ describe Operation do
 
     end
 
-    context "when using an operational unit that checks whether or not the given data contains the phrase 'chunky bacon'" do
+    context "when using an operational unit that checks the correctness of strings and uses early exit mechanisms" do
 
       let(:operational_unit) do
         Class.new(OperationalUnit) do
@@ -63,8 +63,9 @@ describe Operation do
           end
 
           def execute(data)
-            fail("the data does not contain the phrase 'chunky bacon'") unless !!(/chunky bacon/.match(data))
-            succeed
+            fail("the data does not contain the word 'chunky'") unless !!(/chunky/.match(data))
+            succeed("yummy") if !!(/bacon/.match(data))
+            "it should really be bacon"
           end
 
         end
@@ -93,26 +94,40 @@ describe Operation do
         operation.use operational_unit
       end
 
-      context "when the processed data does not contain the correct phrase" do
+      context "when provided with data that causes a failure" do
 
         let!(:result) { operation.execute('crispy bacon') }
 
-        specify "the preparation should be not successful" do
-          result.should_not be
+        specify "the result should be nil" do
+          result.should be_nil
         end
 
         specify "the last log message should state that something went wrong" do
-          last_message.should be == "Chunky bacon checker failed because the data does not contain the phrase 'chunky bacon'"
+          last_message.should be == "Chunky bacon checker failed because the data does not contain the word 'chunky'"
         end
 
       end
 
-      context "when the processed data contains the correct phrase" do
+      context "when provided with data that causes a successfull early exit" do
 
         let!(:result) { operation.execute('chunky bacon') }
 
-        specify "the preparation should be successful" do
-          result.should be == 'chunky bacon'
+        specify "the result should equal the data that has been passed to succeed as first argument" do
+          result.should be == 'yummy'
+        end
+
+        specify "the last log message should state that everything went well" do
+          last_message.should be == 'Chunky bacon checker succeeded'
+        end
+
+      end
+
+      context "when provided with data that causes no early exit" do
+
+        let!(:result) { operation.execute('chunky banana') }
+
+        specify "the result should equal the result of the last expression in the execute method" do
+          result.should be == 'it should really be bacon'
         end
 
         specify "the last log message should state that everything went well" do
@@ -138,7 +153,7 @@ describe Operation do
       context "when the operation has an operational unit that always fails" do
 
         before do
-          operation.use lambda { |*| false }
+          operation.use lambda { |*| nil }
         end
 
         specify "the result shold be nil" do
@@ -154,7 +169,7 @@ describe Operation do
       subject(:result) { operation.execute('chunky bacon') }
 
       before do
-        operation.use lambda { |data| data == 'CHUNKY BACON' }
+        operation.use lambda { |data| data == 'CHUNKY BACON' ? data : nil }
       end
 
       it "should fail when provided with a string that contains lowercase characters" do
@@ -173,6 +188,19 @@ describe Operation do
 
       end
 
+    end
+
+  end
+
+  context "when provided with two blocks as operational units" do
+
+    before do
+      operation.use lambda { |*| 'chunky bacon' }
+      operation.use lambda { |data| data.upcase }
+    end
+
+    it "should pass the return value of the first unit as input to the second one" do
+      operation.execute('').should be == 'CHUNKY BACON'
     end
 
   end
