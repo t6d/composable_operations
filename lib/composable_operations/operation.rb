@@ -15,17 +15,38 @@ class Operation
       (@_operations ||= []) << operation
     end
 
+    def before(&callback)
+      @_preparator = callback
+    end
+
+    def after(&callback)
+      @_finalizer = callback
+    end
+
     def compose
       operations = @_operations
+      preparator = @_preparator
+      finalizer = @_finalizer
 
       Class.new(@_class) do
         define_method :execute do
           operations.inject(input) do |data, operation|
             operation = operation.new(data)
             operation.perform
-            self.message = operation.message if operation.failed?
+            if operation.failed?
+              self.message = operation.message
+              break
+            end
             operation.result
           end
+        end
+
+        define_method :default_preparator do
+          preparator
+        end
+
+        define_method :default_finalizer do
+          finalizer
         end
       end
     end
@@ -36,6 +57,10 @@ class Operation
 
     def compose(&instructions)
       Composer.compose(self, &instructions)
+    end
+
+    def perform(*args)
+      new(*args).perform
     end
 
     private
@@ -55,14 +80,6 @@ class Operation
     @input = input
   end
 
-  def name
-    self.class.name.titleize.humanize.gsub('/', ' ')
-  end
-
-  def message?
-    message.present?
-  end
-
   def failed?
     !result
   end
@@ -71,10 +88,29 @@ class Operation
     !!result
   end
 
-  def call
-    self.result = catch(:halt) { execute }
+  def message?
+    message.present?
   end
-  alias_method :perform, :call
+
+  def name
+    self.class.name.titleize.humanize.gsub('/', ' ')
+  end
+
+  def before(&callback)
+    self.preparator = callback
+  end
+
+  def after(&callback)
+    self.finalizer = callback
+  end
+
+  def perform
+    prepare
+    result = catch(:halt) { execute }
+    finalize
+
+    self.result = result
+  end
 
   def execute
     raise NotImplementedError, "#{self.class.name}#perform not implemented"
@@ -85,9 +121,34 @@ class Operation
     attr_writer :message
     attr_writer :result
 
+    attr_writer :preparator
+    attr_writer :finalizer
+
     def fail(message = nil)
       self.message = message
       throw :halt, nil
+    end
+
+    def default_preparator
+    end
+
+    def preparator
+      @preparator || default_preparator
+    end
+
+    def default_finalizer
+    end
+
+    def finalizer
+      @finalizer || default_finalizer
+    end
+
+    def finalize
+      instance_eval(&finalizer) if finalizer
+    end
+
+    def prepare
+      instance_eval(&preparator) if preparator
     end
 
 end
