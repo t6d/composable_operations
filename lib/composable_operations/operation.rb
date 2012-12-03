@@ -1,117 +1,93 @@
 class Operation
+  class Composer
+
+    def self.compose(klass, &instructions)
+      composer = new(klass)
+      composer.instance_eval(&instructions)
+      composer.compose
+    end
+
+    def initialize(klass)
+      @_class = klass
+    end
+
+    def use(operation)
+      (@_operations ||= []) << operation
+    end
+
+    def compose
+      operations = @_operations
+
+      Class.new(@_class) do
+        define_method :execute do
+          operations.inject(input) do |data, operation|
+            operation = operation.new(data)
+            operation.perform
+            self.message = operation.message if operation.failed?
+            operation.result
+          end
+        end
+      end
+    end
+
+  end
+
   class << self
 
-    def default_configuration
+    def compose(&instructions)
+      Composer.compose(self, &instructions)
     end
 
-    def execute(data, &configuration)
-      new(&configuration).execute(data)
-    end
+    private
 
-    protected
-
-      def event(name)
-        mod = if const_defined?(:Events, false)
-          const_get(:Events)
-        else
-          new_mod = Module.new do
-            def self.to_s
-              "Events(#{instance_methods(false).join(', ')})"
-            end
-          end
-          const_set(:Events, new_mod)
-        end
-
-        mod.module_eval do
-          define_method(name) do |*args|
-            notify_instruments(name, *args)
-          end
-        end
-
-        include mod
+      def method_added(method)
+        super
+        protected method if method == :execute
       end
 
   end
 
-  attr_accessor :preparator
-  attr_accessor :finalizer
+  attr_reader :input
+  attr_reader :result
+  attr_reader :message
 
-  event :will_execute
-  event :will_execute_operational_unit
-  event :did_execute_operational_unit
-  event :did_execute
-
-  def initialize(&configuration)
-    @operational_units = []
-    @instruments = []
-
-    configuration ||= self.class.default_configuration
-    configuration.call(self) unless configuration.nil?
+  def initialize(input)
+    @input = input
   end
 
-  def instrument(instrument)
-    @instruments << instantiate(instrument)
-    nil
+  def name
+    self.class.name.titleize.humanize.gsub('/', ' ')
   end
 
-  def use(operational_unit)
-    operational_units.push(operational_unit)
+  def message?
+    message.present?
   end
 
-  def call(data)
-    return if data.nil?
-    data = prepare(data)
-    return finalize(data) if operational_units.empty?
-    result = execute_operational_units(data)
-    finalize(result)
+  def failed?
+    !result
   end
-  alias execute call
+
+  def succeeded?
+    !!result
+  end
+
+  def call
+    self.result = catch(:halt) { execute }
+  end
+  alias_method :perform, :call
+
+  def execute
+    raise NotImplementedError, "#{self.class.name}#perform not implemented"
+  end
 
   protected
 
-    attr_reader :operational_units
+    attr_writer :message
+    attr_writer :result
 
-    def prepare(data)
-      return if data.nil?
-      preparator.nil? ? data : instantiate(preparator).call(data)
-    end
-
-    def execute_operational_units(data)
-      will_execute(data)
-      success = true
-      operational_units.each do |operational_unit|
-        data = execute_operational_unit(operational_unit, data)
-        success = !!data
-        break unless success
-      end
-      did_execute(data, success)
-      data
-    end
-
-    def execute_operational_unit(operational_unit, data)
-      operational_unit = instantiate(operational_unit)
-
-      will_execute_operational_unit(operational_unit, data)
-      data = operational_unit.call(data)
-      success = !!data
-      did_execute_operational_unit(operational_unit, data, success)
-
-      data
-    end
-
-    def finalize(data)
-      return if data.nil?
-      finalizer.nil? ? data : instantiate(finalizer).call(data)
-    end
-
-    def instantiate(value)
-      value.is_a?(Class) ? value.new : value
-    end
-
-    def notify_instruments(event, *args)
-      (@instruments || []).each do |subscriber|
-        subscriber.public_send("on_#{event}", self, *args)
-      end
+    def fail(message = nil)
+      self.message = message
+      throw :halt, nil
     end
 
 end
