@@ -112,10 +112,6 @@ class Operation
     self.result = result
   end
 
-  def execute
-    raise NotImplementedError, "#{self.class.name}#perform not implemented"
-  end
-
   protected
 
     attr_writer :message
@@ -123,6 +119,10 @@ class Operation
 
     attr_writer :preparator
     attr_writer :finalizer
+
+    def execute
+      raise NotImplementedError, "#{self.class.name}#perform not implemented"
+    end
 
     def fail(message = nil)
       self.message = message
