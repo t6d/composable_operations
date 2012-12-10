@@ -111,4 +111,45 @@ describe Operation do
     end
   end
 
+  context "that is composed of two operations" do
+
+    let(:scream_operation) do
+      Class.new(Operation) do
+        def execute
+          "#{input}!!!111"
+        end
+      end
+    end
+
+    let(:upcase_operation) do
+      Class.new(Operation) do
+        def execute
+          input.upcase
+        end
+      end
+    end
+
+    let(:upcase_and_scream_operation) do
+      upcase_operation = upcase_operation()
+      scream_operation = scream_operation()
+
+      Operation.compose do
+        use upcase_operation
+        use scream_operation
+      end
+    end
+
+    subject(:upcase_and_scream_operation_instance) do
+      upcase_and_scream_operation.new('Don\'t do that')
+    end
+
+    before do
+      upcase_and_scream_operation_instance.perform
+    end
+
+    it "should have the appropriate result" do
+      upcase_and_scream_operation_instance.result.should be == 'DON\'T DO THAT!!!111'
+    end
+
+  end
 end
