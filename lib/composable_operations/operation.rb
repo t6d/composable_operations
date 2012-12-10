@@ -84,7 +84,7 @@ class Operation
     !result
   end
 
-  def succeeded?
+  def successful?
     !!result
   end
 

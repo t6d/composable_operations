@@ -74,8 +74,8 @@ describe Operation do
       simple_operation.result.should be
     end
 
-    it "should have succeeded" do
-      simple_operation.should be_succeeded
+    it "should have successful" do
+      simple_operation.should be_successful
     end
 
     context "when provided with a preparator" do
@@ -149,6 +149,10 @@ describe Operation do
 
     it "should have the appropriate result" do
       upcase_and_scream_operation_instance.result.should be == 'DON\'T DO THAT!!!111'
+    end
+
+    it "should have successful" do
+      upcase_and_scream_operation_instance.should be_successful
     end
 
   end
