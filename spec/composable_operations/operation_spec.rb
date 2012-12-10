@@ -155,5 +155,29 @@ describe Operation do
       upcase_and_scream_operation_instance.should be_successful
     end
 
+    context "when provided with a finalizer and a preparator" do
+
+      let(:logger) { double('logger') }
+
+      before do
+        logger = logger()
+
+        upcase_and_scream_operation_instance.before do
+          logger.info("Starting operation")
+        end
+
+        upcase_and_scream_operation_instance.after do
+          logger.info("Stopping operation")
+        end
+      end
+
+      specify "the logger should have been called twice" do
+        logger.should_receive(:info).twice
+        upcase_and_scream_operation_instance.perform
+      end
+
+    end
+
   end
 end
+
