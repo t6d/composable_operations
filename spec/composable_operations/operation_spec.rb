@@ -27,6 +27,34 @@ describe Operation do
 
   end
 
+  context "that always fails" do
+
+    subject(:failing_operation) do
+      class << (operation = Operation.new(''))
+        def execute
+          fail "Operation failed"
+        end
+      end
+      operation
+    end
+
+    before(:each) do
+      failing_operation.perform
+    end
+
+    it "should have nil as result" do
+      failing_operation.result.should be_nil
+    end
+
+    it "should have failed" do
+      failing_operation.should be_failed
+    end
+
+    it "should have a message" do
+      failing_operation.message.should be_present
+    end
+
+  end
   context "that always returns something when executed" do
 
     subject(:simple_operation) do
