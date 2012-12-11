@@ -183,12 +183,10 @@ describe Operation do
       let(:logger) { double("Logger") }
 
       subject(:simple_operation) do
-        class << (operation = Operation.new(''))
-          def name; "SimpleOperation"; end
-          def identifier; "simple_operation.operation"; end
+        Class.new(Operation) do
+          def self.name; "SimpleOperation"; end
           def execute; ""; end
-        end
-        operation
+        end.new('')
       end
 
       before do

@@ -98,10 +98,6 @@ class Operation
     self.class.name
   end
 
-  def identifier
-    self.class.identifier
-  end
-
   def before(&callback)
     self.preparator = callback
   end
@@ -112,7 +108,7 @@ class Operation
 
   def perform
     prepare
-    ActiveSupport::Notifications.instrument(identifier, :operation => self) do
+    ActiveSupport::Notifications.instrument(self.class.identifier, :operation => self) do
       self.result = catch(:halt) { execute }
     end
     finalize
