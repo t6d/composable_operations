@@ -25,10 +25,8 @@ class Operation
 
     def compose
       operations = @_operations
-      preparator = @_preparator
-      finalizer = @_finalizer
 
-      Class.new(@_class) do
+      klass = Class.new(@_class) do
         define_method :execute do
           operations.inject(input) do |data, operation|
             operation = operation.new(data)
@@ -40,20 +38,20 @@ class Operation
             operation.result
           end
         end
-
-        define_method :default_preparator do
-          preparator
-        end
-
-        define_method :default_finalizer do
-          finalizer
-        end
       end
+
+      klass.default_preparator = @_preparator
+      klass.default_finalizer = @_finalizer
+
+      klass
     end
 
   end
 
   class << self
+
+    attr_accessor :default_preparator
+    attr_accessor :default_finalizer
 
     def compose(&instructions)
       Composer.compose(self, &instructions)
@@ -134,18 +132,12 @@ class Operation
       throw :halt, nil
     end
 
-    def default_preparator
-    end
-
     def preparator
-      @preparator ||= default_preparator
-    end
-
-    def default_finalizer
+      @preparator ||= self.class.default_preparator
     end
 
     def finalizer
-      @finalizer ||= default_finalizer
+      @finalizer ||= self.class.default_finalizer
     end
 
     def finalize
