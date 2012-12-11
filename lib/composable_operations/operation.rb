@@ -96,6 +96,10 @@ class Operation
     self.class.name
   end
 
+  def identifier
+    ["operation", *(name || '').split('::').map(&:underscore)].reverse.join('.')
+  end
+
   def before(&callback)
     self.preparator = callback
   end
@@ -106,8 +110,7 @@ class Operation
 
   def perform
     prepare
-    operation_name = ["operation", *(name || '').split('::').map(&:underscore)].reverse.join('.')
-    ActiveSupport::Notifications.instrument(operation_name, :operation => self) do
+    ActiveSupport::Notifications.instrument(identifier, :operation => self) do
       self.result = catch(:halt) { execute }
     end
     finalize
