@@ -74,8 +74,8 @@ describe Operation do
       simple_operation.result.should be
     end
 
-    it "should have successful" do
-      simple_operation.should be_successful
+    it "should have succeeded" do
+      simple_operation.should be_succeeded
     end
 
     context "when provided with a preparator" do
@@ -151,8 +151,8 @@ describe Operation do
       upcase_and_scream_operation_instance.result.should be == 'DON\'T DO THAT!!!111'
     end
 
-    it "should have successful" do
-      upcase_and_scream_operation_instance.should be_successful
+    it "should have succeeded" do
+      upcase_and_scream_operation_instance.should be_succeeded
     end
 
     context "when provided with a finalizer and a preparator" do
@@ -192,7 +192,7 @@ describe Operation do
 
       before do
         ActiveSupport::Notifications.subscribe("simple_operation.operation") do |name, start, finish, id, payload|
-          logger.info("Simple operation succeeded") if payload[:operation].successful?
+          logger.info("Simple operation succeeded") if payload[:operation].succeeded?
         end
       end
 
