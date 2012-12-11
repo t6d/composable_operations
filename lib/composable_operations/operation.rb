@@ -138,14 +138,14 @@ class Operation
     end
 
     def preparator
-      @preparator || default_preparator
+      @preparator ||= default_preparator
     end
 
     def default_finalizer
     end
 
     def finalizer
-      @finalizer || default_finalizer
+      @finalizer ||= default_finalizer
     end
 
     def finalize
