@@ -114,7 +114,6 @@ class Operation
       self.result = catch(:halt) { execute }
     end
     finalize
-
     result
   end
 
@@ -127,7 +126,7 @@ class Operation
     attr_writer :finalizer
 
     def execute
-      raise NotImplementedError, "#{self.class.name}#perform not implemented"
+      raise NotImplementedError, "#{name}#perform not implemented"
     end
 
     def fail(message = nil)
