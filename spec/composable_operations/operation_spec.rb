@@ -185,6 +185,7 @@ describe Operation do
       subject(:simple_operation) do
         class << (operation = Operation.new(''))
           def name; "SimpleOperation"; end
+          def identifier; "simple_operation.operation"; end
           def execute; ""; end
         end
         operation

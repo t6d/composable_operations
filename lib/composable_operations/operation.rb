@@ -61,6 +61,10 @@ class Operation
       new(*args).perform
     end
 
+    def identifier
+      name.to_s.underscore.split('/').reverse.join('.') + ".operation"
+    end
+
     private
 
       def method_added(method)
@@ -95,7 +99,7 @@ class Operation
   end
 
   def identifier
-    ["operation", *(name || '').split('::').map(&:underscore)].reverse.join('.')
+    self.class.identifier
   end
 
   def before(&callback)
