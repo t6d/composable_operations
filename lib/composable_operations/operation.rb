@@ -128,7 +128,7 @@ class Operation
     attr_writer :finalizer
 
     def execute
-      raise NotImplementedError, "#{name}#perform not implemented"
+      raise NotImplementedError, "#{name}#execute not implemented"
     end
 
     def fail(message = nil)
