@@ -93,7 +93,7 @@ class Operation
   end
 
   def name
-    self.class.name.titleize.humanize.gsub('/', ' ')
+    self.class.name
   end
 
   def before(&callback)
@@ -106,10 +106,13 @@ class Operation
 
   def perform
     prepare
-    result = catch(:halt) { execute }
+    operation_name = ["operation", *(name || '').split('::').map(&:underscore)].reverse.join('.')
+    ActiveSupport::Notifications.instrument(operation_name, :operation => self) do
+      self.result = catch(:halt) { execute }
+    end
     finalize
 
-    self.result = result
+    result
   end
 
   protected

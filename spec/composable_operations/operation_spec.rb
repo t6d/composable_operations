@@ -178,6 +178,33 @@ describe Operation do
 
     end
 
+    context "event handling:" do
+
+      let(:logger) { double("Logger") }
+
+      subject(:simple_operation) do
+        class << (operation = Operation.new(''))
+          def name; "SimpleOperation"; end
+          def execute; ""; end
+        end
+        operation
+      end
+
+      before do
+        ActiveSupport::Notifications.subscribe("simple_operation.operation") do |name, start, finish, id, payload|
+          logger.info("Simple operation succeeded") if payload[:operation].successful?
+        end
+      end
+
+      specify "an event should be sent when an operation was executed" do
+        logger.should_receive(:info).with("Simple operation succeeded")
+      end
+
+      after do
+        simple_operation.perform
+      end
+
+    end
   end
 end
 
