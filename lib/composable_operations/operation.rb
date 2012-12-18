@@ -116,12 +116,15 @@ class Operation
   end
 
   def perform
-    prepare
     ActiveSupport::Notifications.instrument(self.class.identifier, :operation => self) do
-      self.result = catch(:halt) { execute }
+      self.result = catch(:halt) do
+        prepare
+        execution_result = execute
+        finalize
+        execution_result
+      end
     end
-    finalize
-    result
+    self.result
   end
 
   protected
