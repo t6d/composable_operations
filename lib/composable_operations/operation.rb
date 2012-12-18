@@ -82,6 +82,10 @@ class Operation
         (@finalizers ||= []) << callback
       end
 
+      def processes(name)
+        alias_method name.to_sym, :input
+      end
+
     private
 
       def method_added(method)
