@@ -30,12 +30,11 @@ describe Operation do
   context "that always fails" do
 
     subject(:failing_operation) do
-      class << (operation = Operation.new(''))
+      Class.new(Operation) do
         def execute
           fail "Operation failed"
         end
-      end
-      operation
+      end.new("")
     end
 
     before(:each) do
@@ -58,12 +57,11 @@ describe Operation do
   context "that always returns something when executed" do
 
     subject(:simple_operation) do
-      class << (operation = Operation.new(''))
+      Class.new(Operation) do
         def execute
           ""
         end
-      end
-      operation
+      end.new("")
     end
 
     before(:each) do
@@ -78,37 +76,6 @@ describe Operation do
       simple_operation.should be_succeeded
     end
 
-    context "when provided with a preparator" do
-      let(:logger) { stub('Logger') }
-
-      before do
-        logger = logger()
-        simple_operation.before do
-          logger.info("Preparing")
-        end
-      end
-
-      it "should invoke the preparator" do
-        logger.should_receive(:info)
-        simple_operation.perform
-      end
-    end
-
-    context "when provided with a finalizer" do
-      let(:logger) { stub('Logger') }
-
-      before do
-        logger = logger()
-        simple_operation.after do
-          logger.info("Finalizing")
-        end
-      end
-
-      it "should invoke the finalizer" do
-        logger.should_receive(:info)
-        simple_operation.perform
-      end
-    end
   end
 
   context "that is composed of two operations" do
@@ -133,9 +100,11 @@ describe Operation do
       upcase_operation = upcase_operation()
       scream_operation = scream_operation()
 
-      Operation.compose do
-        use upcase_operation
-        use scream_operation
+      Class.new(Operation) do
+        compose do
+          use upcase_operation
+          use scream_operation
+        end
       end
     end
 
@@ -162,18 +131,41 @@ describe Operation do
       before do
         logger = logger()
 
-        upcase_and_scream_operation_instance.before do
-          logger.info("Starting operation")
+        upcase_and_scream_operation.instance_eval do
+          before do
+            logger.info("Starting operation")
+          end
         end
 
-        upcase_and_scream_operation_instance.after do
-          logger.info("Stopping operation")
+        upcase_and_scream_operation.instance_eval do
+          after do
+            logger.info("Stopping operation")
+          end
         end
       end
 
       specify "the logger should have been called twice" do
         logger.should_receive(:info).twice
         upcase_and_scream_operation_instance.perform
+      end
+
+      context "when now subclassed and extended with an additional preparator" do
+
+        subject(:extended_upcase_and_scream_operation) do
+          logger = logger()
+
+          Class.new(upcase_and_scream_operation) do
+            before do
+              logger.info("Yet another log message ...")
+            end
+          end
+        end
+
+        specify "the logger should have been called three times" do
+          logger.should_receive(:info).exactly(3)
+          extended_upcase_and_scream_operation.perform("")
+        end
+
       end
 
     end

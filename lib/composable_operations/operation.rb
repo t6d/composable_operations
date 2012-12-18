@@ -1,4 +1,5 @@
 class Operation
+
   class Composer
 
     def self.compose(klass, &instructions)
@@ -15,47 +16,27 @@ class Operation
       (@_operations ||= []) << operation
     end
 
-    def before(&callback)
-      @_preparator = callback
-    end
-
-    def after(&callback)
-      @_finalizer = callback
-    end
-
     def compose
       operations = @_operations
 
-      klass = Class.new(@_class) do
-        define_method :execute do
-          operations.inject(input) do |data, operation|
-            operation = operation.new(data)
-            operation.perform
-            if operation.failed?
-              self.message = operation.message
-              break
-            end
-            operation.result
+      @_class.send(:define_method, :execute) do
+        operations.inject(input) do |data, operation|
+          operation = operation.new(data)
+          operation.perform
+          if operation.failed?
+            self.message = operation.message
+            break
           end
+          operation.result
         end
       end
 
-      klass.default_preparator = @_preparator
-      klass.default_finalizer = @_finalizer
-
-      klass
+      @_class
     end
 
   end
 
   class << self
-
-    attr_accessor :default_preparator
-    attr_accessor :default_finalizer
-
-    def compose(&instructions)
-      Composer.compose(self, &instructions)
-    end
 
     def perform(*args)
       new(*args).perform
@@ -64,6 +45,42 @@ class Operation
     def identifier
       name.to_s.underscore.split('/').reverse.join('.') + ".operation"
     end
+
+    def preparators
+      preparators = []
+      klass = self
+      while klass != Operation
+        klass = klass.superclass
+        preparators += Array(klass.instance_variable_get(:@preparators))
+      end
+      preparators += Array(@preparators)
+      preparators
+    end
+
+    def finalizers
+      finalizers = []
+      klass = self
+      while klass != Operation
+        klass = klass.superclass
+        finalizers += Array(klass.instance_variable_get(:@finalizers))
+      end
+      finalizers += Array(@finalizers)
+      finalizers
+    end
+
+    protected
+
+      def compose(&instructions)
+        Composer.compose(self, &instructions)
+      end
+
+      def before(&callback)
+        (@preparators ||= []) << callback
+      end
+
+      def after(&callback)
+        (@finalizers ||= []) << callback
+      end
 
     private
 
@@ -98,14 +115,6 @@ class Operation
     self.class.name
   end
 
-  def before(&callback)
-    self.preparator = callback
-  end
-
-  def after(&callback)
-    self.finalizer = callback
-  end
-
   def perform
     prepare
     ActiveSupport::Notifications.instrument(self.class.identifier, :operation => self) do
@@ -120,9 +129,6 @@ class Operation
     attr_writer :message
     attr_writer :result
 
-    attr_writer :preparator
-    attr_writer :finalizer
-
     def execute
       raise NotImplementedError, "#{name}#execute not implemented"
     end
@@ -132,20 +138,12 @@ class Operation
       throw :halt, nil
     end
 
-    def preparator
-      @preparator ||= self.class.default_preparator
-    end
-
-    def finalizer
-      @finalizer ||= self.class.default_finalizer
+    def prepare
+      self.class.preparators.each { |preparator| instance_eval(&preparator) }
     end
 
     def finalize
-      instance_eval(&finalizer) if finalizer
-    end
-
-    def prepare
-      instance_eval(&preparator) if preparator
+      self.class.finalizers.each { |finalizer| instance_eval(&finalizer) }
     end
 
 end
