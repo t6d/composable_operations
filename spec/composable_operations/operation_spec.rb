@@ -54,6 +54,7 @@ describe Operation do
     end
 
   end
+
   context "that always returns something when executed" do
 
     subject(:simple_operation) do
@@ -78,124 +79,31 @@ describe Operation do
 
   end
 
-  context "that is composed of two operations" do
+  context "event handling:" do
 
-    let(:scream_operation) do
+    let(:logger) { double("Logger") }
+
+    subject(:simple_operation) do
       Class.new(Operation) do
-        def execute
-          "#{input}!!!111"
-        end
-      end
-    end
-
-    let(:upcase_operation) do
-      Class.new(Operation) do
-        def execute
-          input.upcase
-        end
-      end
-    end
-
-    let(:upcase_and_scream_operation) do
-      upcase_operation = upcase_operation()
-      scream_operation = scream_operation()
-
-      Class.new(Operation) do
-        compose do
-          use upcase_operation
-          use scream_operation
-        end
-      end
-    end
-
-    subject(:upcase_and_scream_operation_instance) do
-      upcase_and_scream_operation.new('Don\'t do that')
+        def self.name; "SimpleOperation"; end
+        def execute; ""; end
+      end.new('')
     end
 
     before do
-      upcase_and_scream_operation_instance.perform
+      ActiveSupport::Notifications.subscribe("simple_operation.operation") do |name, start, finish, id, payload|
+        logger.info("Simple operation succeeded") if payload[:operation].succeeded?
+      end
     end
 
-    it "should have the appropriate result" do
-      upcase_and_scream_operation_instance.result.should be == 'DON\'T DO THAT!!!111'
+    specify "an event should be sent when an operation was executed" do
+      logger.should_receive(:info).with("Simple operation succeeded")
     end
 
-    it "should have succeeded" do
-      upcase_and_scream_operation_instance.should be_succeeded
+    after do
+      simple_operation.perform
     end
 
-    context "when provided with a finalizer and a preparator" do
-
-      let(:logger) { double('logger') }
-
-      before do
-        logger = logger()
-
-        upcase_and_scream_operation.instance_eval do
-          before do
-            logger.info("Starting operation")
-          end
-        end
-
-        upcase_and_scream_operation.instance_eval do
-          after do
-            logger.info("Stopping operation")
-          end
-        end
-      end
-
-      specify "the logger should have been called twice" do
-        logger.should_receive(:info).twice
-        upcase_and_scream_operation_instance.perform
-      end
-
-      context "when now subclassed and extended with an additional preparator" do
-
-        subject(:extended_upcase_and_scream_operation) do
-          logger = logger()
-
-          Class.new(upcase_and_scream_operation) do
-            before do
-              logger.info("Yet another log message ...")
-            end
-          end
-        end
-
-        specify "the logger should have been called three times" do
-          logger.should_receive(:info).exactly(3)
-          extended_upcase_and_scream_operation.perform("")
-        end
-
-      end
-
-    end
-
-    context "event handling:" do
-
-      let(:logger) { double("Logger") }
-
-      subject(:simple_operation) do
-        Class.new(Operation) do
-          def self.name; "SimpleOperation"; end
-          def execute; ""; end
-        end.new('')
-      end
-
-      before do
-        ActiveSupport::Notifications.subscribe("simple_operation.operation") do |name, start, finish, id, payload|
-          logger.info("Simple operation succeeded") if payload[:operation].succeeded?
-        end
-      end
-
-      specify "an event should be sent when an operation was executed" do
-        logger.should_receive(:info).with("Simple operation succeeded")
-      end
-
-      after do
-        simple_operation.perform
-      end
-
-    end
   end
 end
 
