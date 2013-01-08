@@ -1,41 +1,5 @@
 class Operation
 
-  class Composer
-
-    def self.compose(klass, &instructions)
-      composer = new(klass)
-      composer.instance_eval(&instructions)
-      composer.compose
-    end
-
-    def initialize(klass)
-      @_class = klass
-    end
-
-    def use(operation)
-      (@_operations ||= []) << operation
-    end
-
-    def compose
-      operations = @_operations
-
-      @_class.send(:define_method, :execute) do
-        operations.inject(input) do |data, operation|
-          operation = operation.new(data)
-          operation.perform
-          if operation.failed?
-            self.message = operation.message
-            break
-          end
-          operation.result
-        end
-      end
-
-      @_class
-    end
-
-  end
-
   class << self
 
     def perform(*args)
@@ -69,10 +33,6 @@ class Operation
     end
 
     protected
-
-      def compose(&instructions)
-        Composer.compose(self, &instructions)
-      end
 
       def before(&callback)
         (@preparators ||= []) << callback
