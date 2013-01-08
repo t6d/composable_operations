@@ -57,24 +57,48 @@ describe Operation do
 
   context "that always returns something when executed" do
 
-    subject(:simple_operation) do
+    let(:simple_operation) do
       Class.new(Operation) do
         def execute
           ""
         end
-      end.new("")
+      end
+    end
+
+    subject(:simple_operation_instance) do
+      simple_operation.new
     end
 
     before(:each) do
-      simple_operation.perform
+      simple_operation_instance.perform
     end
 
     it "should have a result" do
-      simple_operation.result.should be
+      simple_operation_instance.result.should be
     end
 
     it "should have succeeded" do
-      simple_operation.should be_succeeded
+      simple_operation_instance.should be_succeeded
+    end
+
+    context "when extended with a preparator and a finalizer" do
+
+      let(:logger) { double("Logger") }
+
+      subject(:simple_operation_with_preparator_and_finalizer) do
+        logger = logger()
+        Class.new(simple_operation) do
+          before { logger.info("preparing") }
+          after { logger.info("finalizing") }
+        end
+      end
+
+      it "should execute the preparator and finalizer when performing" do
+        logger.should_receive(:info).ordered.with("preparing")
+        logger.should_receive(:info).ordered.with("finalizing")
+        simple_operation_with_preparator_and_finalizer.perform
+      end
+
     end
 
   end
