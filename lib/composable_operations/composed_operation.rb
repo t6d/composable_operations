@@ -2,7 +2,7 @@ class ComposedOperation < Operation
   class << self
 
     def operations
-      [] + Array(super if defined? super) + Array(@operations)
+      [] + Array((super if defined? super)) + Array(@operations)
     end
 
     def use(operation)
@@ -11,10 +11,14 @@ class ComposedOperation < Operation
 
   end
 
+  def operations
+    self.class.operations
+  end
+
   protected
 
     def execute
-      self.class.operations.inject(input) do |data, operation|
+      operations.inject(input) do |data, operation|
         operation = operation.new(data)
         operation.perform
         if operation.failed?
