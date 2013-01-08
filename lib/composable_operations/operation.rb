@@ -59,7 +59,7 @@ class Operation
   attr_reader :result
   attr_reader :message
 
-  def initialize(input)
+  def initialize(input = nil)
     @input = input
   end
 
