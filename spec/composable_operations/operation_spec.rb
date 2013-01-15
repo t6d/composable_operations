@@ -29,28 +29,50 @@ describe Operation do
 
   context "that always fails" do
 
-    subject(:failing_operation) do
+    let(:failing_operation) do
       Class.new(Operation) do
         def execute
           fail "Operation failed"
         end
-      end.new("")
+      end
+    end
+
+    subject(:failing_operation_instance) do
+      failing_operation.new
     end
 
     before(:each) do
-      failing_operation.perform
+      failing_operation_instance.perform
     end
 
     it "should have nil as result" do
-      failing_operation.result.should be_nil
+      failing_operation_instance.result.should be_nil
     end
 
     it "should have failed" do
-      failing_operation.should be_failed
+      failing_operation_instance.should be_failed
     end
 
     it "should have a message" do
-      failing_operation.message.should be_present
+      failing_operation_instance.message.should be_present
+    end
+
+    context "when extended with a finalizer" do
+
+      let(:supervisor) { mock("Supervisor") }
+
+      subject(:failing_operation_instance_with_finalizer) do
+        supervisor = supervisor()
+        Class.new(failing_operation) do
+          after { supervisor.notify }
+        end
+      end
+
+      it "should execute the finalizers" do
+        supervisor.should_receive(:notify)
+        failing_operation_instance_with_finalizer.perform
+      end
+
     end
 
   end
