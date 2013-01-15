@@ -129,5 +129,28 @@ describe Operation do
     end
 
   end
+
+  context "that can be parameterized" do
+
+    subject(:string_multiplier) do
+      Class.new(Operation) do
+        property :multiplier, :default => 3
+
+        def execute
+          input.to_s * multiplier
+        end
+      end
+    end
+
+    it "should operate according to the specified default value" do
+      string_multiplier.perform("-").should be == "---"
+    end
+
+    it "should allow to overwrite default settings" do
+      string_multiplier.perform("-", :multiplier => 5).should be == "-----"
+    end
+
+  end
+
 end
 

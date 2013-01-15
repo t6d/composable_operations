@@ -1,5 +1,7 @@
 class Operation
 
+  include SmartProperties
+
   class << self
 
     def perform(*args)
@@ -59,7 +61,8 @@ class Operation
   attr_reader :result
   attr_reader :message
 
-  def initialize(input = nil)
+  def initialize(input = nil, options = {})
+    super(options)
     @input = input
   end
 
