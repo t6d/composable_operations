@@ -37,7 +37,7 @@ module UtilizeOperation
       composite_operations.each do |composite_operation|
         dummy_operation = DummyOperation.new
         dummy_operation.should_receive(:perform).and_call_original
-        composite_operation.should_receive(:new).and_return(dummy_operation.new)
+        composite_operation.should_receive(:new).and_return(dummy_operation)
       end
       tested_operation.stub(:prepare => true, :finalize => true)
       tested_operation.perform
