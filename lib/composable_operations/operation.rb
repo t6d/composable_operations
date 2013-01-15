@@ -83,13 +83,12 @@ class Operation
   end
 
   def perform
-    self.result = nil
-
     ActiveSupport::Notifications.instrument(self.class.identifier, :operation => self) do
-      catch(:halt) do
+      self.result = catch(:halt) do
         prepare
         self.result = execute
         finalize
+        self.result
       end
     end
 
