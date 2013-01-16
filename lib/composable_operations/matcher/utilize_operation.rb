@@ -25,13 +25,20 @@ module UtilizeOperation
 
     attr_reader :composite_operations
     attr_reader :tested_operation
+    attr_reader :tested_instance
 
     def initialize(*composite_operations)
       @composite_operations = composite_operations.flatten
     end
 
-    def matches?(tested_operation)
-      @tested_operation = tested_operation
+    def matches?(class_or_instance)
+      if class_or_instance.is_a?(Class)
+        @tested_operation = class_or_instance
+        @tested_instance = class_or_instance.new
+      else
+        @tested_operation = class_or_instance.class
+        @tested_instance = class_or_instance
+      end
 
       Operation.stub(:new => DummyOperation.new)
       composite_operations.each do |composite_operation|
@@ -39,8 +46,8 @@ module UtilizeOperation
         dummy_operation.should_receive(:perform).and_call_original
         composite_operation.should_receive(:new).and_return(dummy_operation)
       end
-      tested_operation.stub(:prepare => true, :finalize => true)
-      tested_operation.perform
+      tested_instance.stub(:prepare => true, :finalize => true)
+      tested_instance.perform
 
       tested_operation.operations == composite_operations
     end
