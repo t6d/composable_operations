@@ -6,11 +6,10 @@ module SucceedToPerform
       succeeded? && correct_result?
     end
 
-    def with_operational_result(result)
+    def and_return(result)
       @expected_result = result
       self
     end
-    alias with with_operational_result
 
     def description
       description = "succeed to perform"
@@ -19,7 +18,7 @@ module SucceedToPerform
     end
 
     def failure_message
-      return "succeed but did not return the expected result" if suceeded?
+      return "succeeded but did not return the expected result" if succeeded?
       return "failed" unless operation.message
       "failed because #{operation.message}"
     end
