@@ -13,12 +13,12 @@ module SucceedToPerform
 
     def description
       description = "succeed to perform"
-      description += " with expected result" if expected_result
+      description += " and return the specified result" if expected_result
       description
     end
 
     def failure_message
-      return "succeeded but did not return the expected result" if succeeded?
+      return "succeeded but did not return the specified result" if succeeded?
       return "failed" unless operation.message
       "failed because #{operation.message}"
     end
