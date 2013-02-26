@@ -19,7 +19,7 @@ module FailToPerform
 
     def failure_message
       return "did not fail" unless failed?
-      "did not fail with the correct message:\n\texpected:#{message}\n\treceived:#{operation.message}"
+      "did not fail with the correct message:\n\texpected: #{message}\n\treceived: #{operation.message}"
     end
 
     def negative_failure_message
