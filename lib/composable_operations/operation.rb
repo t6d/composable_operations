@@ -99,7 +99,11 @@ class Operation
         prepare
         execute
       end
-      finalize
+
+      self.result = catch(:halt) do
+        finalize
+        self.result
+      end
     end
 
     self.result

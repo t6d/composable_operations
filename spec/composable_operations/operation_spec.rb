@@ -148,6 +148,22 @@ describe Operation do
 
     end
 
+    context "when extended with a finalizer that checks that the result is not an empty string" do
+
+      let(:simple_operation_with_sanity_check) do
+        Class.new(simple_operation) do
+          after { fail "the operational result is an empty string" if self.result == "" }
+        end
+      end
+
+      subject(:simple_operation_with_sanity_check_instance) do
+        simple_operation_with_sanity_check.new
+      end
+
+      it { should fail_to_perform.because("the operational result is an empty string") }
+
+    end
+
   end
 
   context "event handling:" do
