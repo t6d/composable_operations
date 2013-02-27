@@ -83,6 +83,23 @@ describe Operation do
 
     end
 
+    context "when configured to raise a custome execption" do
+
+      let(:custom_exception) { Class.new(RuntimeError) }
+
+      subject(:failing_operation_with_custom_exception) do
+        custom_exception = custom_exception()
+        Class.new(failing_operation) do
+          raises custom_exception
+        end
+      end
+
+      it "should raise the custom exeception when executed using the class method perform" do
+        expect { failing_operation_with_custom_exception.perform }.to raise_error(custom_exception, "Operation failed")
+      end
+
+    end
+
   end
 
   context "that always returns something when executed" do

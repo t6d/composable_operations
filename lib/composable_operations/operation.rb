@@ -7,7 +7,7 @@ class Operation
     def perform(*args)
       operation = new(*args)
       operation.perform
-      raise operation.message if operation.failed?
+      raise exception, operation.message if operation.failed?
       operation.result
     end
 
@@ -37,6 +37,10 @@ class Operation
       finalizers
     end
 
+    def exception
+      @exception or defined?(super) ? super : RuntimeError
+    end
+
     protected
 
       def before(&callback)
@@ -49,6 +53,10 @@ class Operation
 
       def processes(name)
         alias_method name.to_sym, :input
+      end
+
+      def raises(exception)
+        @exception = exception
       end
 
     private
