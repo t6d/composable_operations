@@ -5,7 +5,10 @@ class Operation
   class << self
 
     def perform(*args)
-      new(*args).perform
+      operation = new(*args)
+      operation.perform
+      raise operation.message if operation.failed?
+      operation.result
     end
 
     def identifier

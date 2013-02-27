@@ -57,20 +57,28 @@ describe Operation do
       failing_operation_instance.message.should be_present
     end
 
+    it "should raise an error when executed using the class method perform" do
+      expect { failing_operation.perform }.to raise_error("Operation failed")
+    end
+
     context "when extended with a finalizer" do
 
       let(:supervisor) { mock("Supervisor") }
 
-      subject(:failing_operation_instance_with_finalizer) do
+      let(:failing_operation_instance_with_finalizer) do
         supervisor = supervisor()
         Class.new(failing_operation) do
           after { supervisor.notify }
         end
       end
 
+      subject(:failing_operation_instance_with_finalizer_instance) do
+        failing_operation_instance_with_finalizer.new
+      end
+
       it "should execute the finalizers" do
         supervisor.should_receive(:notify)
-        failing_operation_instance_with_finalizer.perform
+        failing_operation_instance_with_finalizer_instance.perform
       end
 
     end
