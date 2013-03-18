@@ -18,6 +18,14 @@ describe ComposedOperation do
     end
   end
 
+  let(:halting_operation) do
+    Class.new(Operation) do
+      def execute
+        halt
+      end
+    end
+  end
+
   context "when composed of one operation that generates a string no matter the input" do
 
     subject(:composed_operation) do
@@ -51,6 +59,32 @@ describe ComposedOperation do
 
     it { should utilize_operations(string_generator, string_capitalizer) }
 
+  end
+
+  context "when composed of three operations, one that generates a string, one that halts and one that capatalizes strings" do
+
+    subject(:composed_operation) do
+      operations = [string_generator, halting_operation, string_capitalizer]
+
+      Class.new(ComposedOperation) do
+        use operations[0]
+        use operations[1]
+        use operations[2]
+      end
+    end
+
+    it "should return a capitalized version of the generated string" do
+      composed_operation.perform.should be == "chunky bacon"
+    end
+
+    it "should only execute the first two operations" do
+      string_generator.any_instance.should_receive(:perform).and_call_original
+      halting_operation.any_instance.should_receive(:perform).and_call_original
+      string_capitalizer.any_instance.should_not_receive(:perform)
+      composed_operation.perform
+    end
+
+    it { should utilize_operations(string_generator, halting_operation, string_capitalizer) }
   end
 
 end

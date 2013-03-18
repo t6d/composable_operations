@@ -21,10 +21,13 @@ class ComposedOperation < Operation
       operations.inject(input) do |data, operation|
         operation = operation.new(data)
         operation.perform
+
         if operation.failed?
-          self.message = operation.message
-          break
+          fail operation.message
+        elsif operation.halted?
+          halt operation.message, operation.result
         end
+
         operation.result
       end
     end
