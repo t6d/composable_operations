@@ -8,6 +8,10 @@ module UtilizeOperation
       false
     end
 
+    def halted?
+      false
+    end
+
     def succeeded?
       true
     end
