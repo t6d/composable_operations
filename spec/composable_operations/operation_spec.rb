@@ -27,6 +27,35 @@ describe Operation do
 
   end
 
+  context "that always halts" do
+
+    let(:halting_operation) do
+      Class.new(Operation) do
+        def execute
+          halt "Full stop!"
+        end
+      end
+    end
+
+    let(:halting_operation_instance) do
+      halting_operation.new("Test")
+    end
+
+    it "should return the input value when executed using the class' method perform" do
+      halting_operation.perform("Test").should be == "Test"
+    end
+
+    it "should return the input value when executed using the instance's peform method" do
+      halting_operation_instance.perform.should be == "Test"
+    end
+
+    it "should have halted after performing" do
+      halting_operation_instance.perform
+      halting_operation_instance.should be_halted
+    end
+
+  end
+
   context "that always fails" do
 
     let(:failing_operation) do

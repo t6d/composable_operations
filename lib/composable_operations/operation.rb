@@ -78,11 +78,15 @@ class Operation
   end
 
   def failed?
-    !result
+    state == :failed
+  end
+
+  def halted?
+    state == :halted
   end
 
   def succeeded?
-    !!result
+    state == :succeeded
   end
 
   def message?
@@ -97,7 +101,9 @@ class Operation
     ActiveSupport::Notifications.instrument(self.class.identifier, :operation => self) do
       self.result = catch(:halt) do
         prepare
-        execute
+        result = execute
+        self.state = result ? :succeeded : :failed
+        result
       end
 
       self.result = catch(:halt) do
@@ -111,6 +117,8 @@ class Operation
 
   protected
 
+    attr_accessor :state
+
     attr_writer :message
     attr_writer :result
 
@@ -120,7 +128,14 @@ class Operation
 
     def fail(message = nil)
       self.message = message
+      self.state = :failed
       throw :halt, nil
+    end
+
+    def halt(message = nil, return_value = input)
+      self.message = message
+      self.state = :halted
+      throw :halt, return_value
     end
 
     def prepare
