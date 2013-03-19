@@ -3,7 +3,7 @@ module FailToPerform
 
     def matches?(operation)
       self.operation = operation
-      failed? && correct_message?
+      failed? && result_as_expected? && message_as_expected?
     end
 
     def because(message)
@@ -11,26 +11,31 @@ module FailToPerform
       self
     end
 
+    def and_return(result)
+      @result = result
+      self
+    end
+
     def description
       description = "fail to perform"
       description += " because #{message}" if message
+      description += " and return the expected result" if result
       description
     end
 
     def failure_message
-      return "did not fail" unless failed?
-      "did not fail with the correct message:\n\texpected: #{message}\n\treceived: #{operation.message}"
+      "the operation did not fail to perform for the following reason(s):\n#{failure_reasons}"
     end
 
     def negative_failure_message
-      return "failed with the given message" if failed? && message? && correct_message?
-      "failed"
+      "the operation failed unexpectedly"
     end
 
     protected
 
       attr_reader :operation
       attr_reader :message
+      attr_reader :result
 
       def operation=(operation)
         operation.perform
@@ -43,13 +48,22 @@ module FailToPerform
         operation.failed?
       end
 
-      def message?
-        message.present?
-      end
-
-      def correct_message?
+      def message_as_expected?
         return true unless message
         operation.message == message
+      end
+
+      def result_as_expected?
+        return true unless result
+        operation.result == result
+      end
+
+      def failure_reasons
+        reasons = []
+        reasons << "it did not fail at all" unless failed?
+        reasons << "its message was not as expected" unless message_as_expected?
+        reasons << "it did not return the expected result" unless result_as_expected?
+        reasons.map { |r| "\t- #{r}" }.join("\n")
       end
 
   end

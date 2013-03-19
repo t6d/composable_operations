@@ -3,34 +3,32 @@ module SucceedToPerform
 
     def matches?(operation)
       self.operation = operation
-      succeeded? && correct_result?
+      succeeded? && result_as_expected?
     end
 
     def and_return(result)
-      @expected_result = result
+      @result = result
       self
     end
 
     def description
       description = "succeed to perform"
-      description += " and return the specified result" if expected_result
+      description += " and return the expected result" if result
       description
     end
 
     def failure_message
-      return "succeeded but did not return the specified result" if succeeded?
-      return "failed" unless operation.message
-      "failed because #{operation.message}"
+      "the operation failed to perform for the following reason(s):\n#{failure_reasons}"
     end
 
     def negative_failure_message
-      "succeeded"
+      "the operation succeeded unexpectedly"
     end
 
     protected
 
       attr_reader :operation
-      attr_reader :expected_result
+      attr_reader :result
 
       def operation=(operation)
         operation.perform
@@ -43,9 +41,16 @@ module SucceedToPerform
         operation.succeeded?
       end
 
-      def correct_result?
-        return true unless expected_result
-        expected_result == operation.result
+      def result_as_expected?
+        return true unless result
+        operation.result == result
+      end
+
+      def failure_reasons
+        reasons = []
+        reasons << "it did not succeed at all" unless succeeded?
+        reasons << "it did not return the expected result" unless result_as_expected?
+        reasons.map { |r| "\t- #{r}" }.join("\n")
       end
 
   end
