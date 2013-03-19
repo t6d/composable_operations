@@ -13,17 +13,7 @@ describe Operation do
       operation
     end
 
-    before(:each) do
-      nil_operation.perform
-    end
-
-    it "should have nil as result" do
-      nil_operation.result.should be_nil
-    end
-
-    it "should have failed" do
-      nil_operation.should be_failed
-    end
+    it { should succeed_to_perform.and_return(nil) }
 
   end
 
