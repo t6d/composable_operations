@@ -42,6 +42,18 @@ describe ComposedOperation do
 
   end
 
+  context "when composed of two operations using the factory method '#chain'" do
+
+    subject(:composed_operation) do
+      ComposedOperation.compose(string_generator, string_capitalizer).new
+    end
+
+    it { should succeed_to_perform.and_return("CHUNKY BACON") }
+
+    it { should utilize_operations(string_generator, string_capitalizer) }
+
+  end
+
   context "when composed of two operations, one that generates a string and one that capitalizes strings, " do
 
     subject(:composed_operation) do

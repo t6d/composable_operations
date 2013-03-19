@@ -9,6 +9,20 @@ class ComposedOperation < Operation
       (@operations ||= []) << operation
     end
 
+    def compose(*operations, &block)
+      raise ArgumentError, "Expects either an array of operations or a block with configuration instructions" unless block ^ !operations.empty?
+
+      if block
+        Class.new(self, &block)
+      else
+        Class.new(self) do
+          operations.each do |operation|
+            use operation
+          end
+        end
+      end
+    end
+
   end
 
   def operations
