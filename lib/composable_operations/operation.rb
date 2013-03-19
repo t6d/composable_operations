@@ -102,7 +102,7 @@ class Operation
       self.result = catch(:halt) do
         prepare
         result = execute
-        self.state = result ? :succeeded : :failed
+        self.state = :succeeded
         result
       end
 
