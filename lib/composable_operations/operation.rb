@@ -126,10 +126,10 @@ class Operation
       raise NotImplementedError, "#{name}#execute not implemented"
     end
 
-    def fail(message = nil)
+    def fail(message = nil, return_value = nil)
       self.message = message
       self.state = :failed
-      throw :halt, nil
+      throw :halt, return_value
     end
 
     def halt(message = nil, return_value = input)
