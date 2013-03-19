@@ -76,13 +76,7 @@ describe ComposedOperation do
   context "when composed of three operations, one that generates a string, one that halts and one that capatalizes strings" do
 
     subject(:composed_operation) do
-      operations = [string_generator, halting_operation, string_capitalizer]
-
-      Class.new(ComposedOperation) do
-        use operations[0]
-        use operations[1]
-        use operations[2]
-      end
+      ComposedOperation.compose(string_generator, halting_operation, string_capitalizer)
     end
 
     it "should return a capitalized version of the generated string" do
