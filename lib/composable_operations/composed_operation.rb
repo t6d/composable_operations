@@ -10,7 +10,7 @@ class ComposedOperation < Operation
     end
 
     def compose(*operations, &block)
-      raise ArgumentError, "Expects either an array of operations or a block with configuration instructions" unless block ^ !operations.empty?
+      raise ArgumentError, "Expects either an array of operations or a block with configuration instructions" unless !!block ^ !operations.empty?
 
       if block
         Class.new(self, &block)
