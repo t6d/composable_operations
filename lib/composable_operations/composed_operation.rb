@@ -56,7 +56,7 @@ class ComposedOperation < Operation
           operation.perform
 
           if operation.failed?
-            fail operation.message
+            fail operation.message, operation.result, operation.backtrace
           elsif operation.halted?
             halt operation.message, operation.result
           end

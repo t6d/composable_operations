@@ -128,11 +128,11 @@ class Operation
       raise NotImplementedError, "#{name}#execute not implemented"
     end
 
-    def fail(message = nil, return_value = nil)
+    def fail(message = nil, return_value = nil, backtrace = caller)
       raise "Operation execution has already been aborted" if halted? or failed?
 
       self.state = :failed
-      self.backtrace = caller[0 .. -2]
+      self.backtrace = backtrace
       self.message = message
       throw :halt, return_value
     end
