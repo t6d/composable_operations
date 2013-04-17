@@ -7,7 +7,7 @@ class Operation
     def perform(*args)
       operation = new(*args)
       operation.perform
-      raise exception, operation.message if operation.failed?
+      raise exception, operation.message, operation.backtrace if operation.failed?
       operation.result
     end
 
@@ -71,6 +71,7 @@ class Operation
   attr_reader :input
   attr_reader :result
   attr_reader :message
+  attr_reader :backtrace
 
   def initialize(input = nil, options = {})
     super(options)
@@ -121,20 +122,26 @@ class Operation
 
     attr_writer :message
     attr_writer :result
+    attr_writer :backtrace
 
     def execute
       raise NotImplementedError, "#{name}#execute not implemented"
     end
 
     def fail(message = nil, return_value = nil)
-      self.message = message
+      raise "Operation execution has already been aborted" if halted? or failed?
+
       self.state = :failed
+      self.backtrace = caller[0 .. -2]
+      self.message = message
       throw :halt, return_value
     end
 
     def halt(message = nil, return_value = input)
-      self.message = message
+      raise "Operation execution has already been aborted" if halted? or failed?
+
       self.state = :halted
+      self.message = message
       throw :halt, return_value
     end
 
