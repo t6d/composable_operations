@@ -107,10 +107,7 @@ class Operation
         result
       end
 
-      self.result = catch(:halt) do
-        finalize
-        self.result
-      end
+      finalize
     end
 
     self.result
@@ -150,7 +147,12 @@ class Operation
     end
 
     def finalize
-      self.class.finalizers.each { |finalizer| instance_eval(&finalizer) }
+      self.class.finalizers.each do |finalizer|
+        self.result = catch(:halt) do
+          instance_eval(&finalizer)
+          self.result
+        end
+      end
     end
 
 end
