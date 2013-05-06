@@ -418,5 +418,23 @@ describe Operation do
 
   end
 
+  context "that processes two values (a string and a multiplier)" do
+
+    subject(:string_multiplier) do
+      Class.new(Operation) do
+        processes :string, :multiplier
+
+        def execute
+          string * multiplier
+        end
+      end
+    end
+
+    it "should build a string that is multiplier-times long" do
+      string_multiplier.perform(["-", 3]).should be == "---"
+    end
+
+  end
+
 end
 

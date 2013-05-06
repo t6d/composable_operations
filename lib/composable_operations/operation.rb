@@ -51,8 +51,17 @@ class Operation
         (@finalizers ||= []) << callback
       end
 
-      def processes(name)
-        alias_method name.to_sym, :input
+      def processes(*names)
+        case names.length
+        when 0
+          raise ArgumentError, "#{self}.#{__callee__} expects at least one argument"
+        when 1
+          alias_method names[0].to_sym, :input
+        else
+          names.each_with_index do |name, index|
+            define_method(name) { input[index] }
+          end
+        end
       end
 
       def raises(exception)
