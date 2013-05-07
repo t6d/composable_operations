@@ -7,8 +7,13 @@ class Operation
     def perform(*args)
       operation = new(*args)
       operation.perform
-      raise exception, operation.message, operation.backtrace if operation.failed?
-      operation.result
+      if operation.failed?
+        exception = self.exception.new
+        exception.bugsnag_meta_data = exception_meta_data_for(operation) if exception.respond_to?(:bugsnag_meta_data)
+        raise exception, operation.message, operation.backtrace if operation.failed?
+      else
+        operation.result
+      end
     end
 
     def identifier
@@ -38,7 +43,11 @@ class Operation
     end
 
     def exception
-      @exception or defined?(super) ? super : RuntimeError
+      @exception or defined?(super) ? super : OperationError
+    end
+
+    def exception_meta_data_for(operation)
+      operation.instance_exec &(@exception_meta_data or defined?(super) ? super : lambda { nil })
     end
 
     protected
@@ -64,8 +73,9 @@ class Operation
         end
       end
 
-      def raises(exception)
+      def raises(exception, meta_data = nil, &block)
         @exception = exception
+        @exception_meta_data = block ? block : lambda { meta_data }
       end
 
     private
