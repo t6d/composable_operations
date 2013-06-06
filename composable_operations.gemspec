@@ -8,9 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = ComposableOperations::VERSION
   spec.authors       = ["Konstantin Tennhard"]
   spec.email         = ["me@t6d.de"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
-  spec.homepage      = ""
+  spec.summary       = %q{Pipeline micro-framework}
+  spec.homepage      = "http://github.com/t6d/composable_operations"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
@@ -18,6 +17,10 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
+  spec.add_dependency "smart_properties", "~> 1.0"
+  spec.add_dependency "activesupport", ">= 3.0"
+
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake"
+  spec.add_development_dependency "rspec", "~> 2.11"
 end

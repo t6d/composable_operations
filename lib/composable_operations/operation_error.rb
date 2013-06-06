@@ -1,3 +1,4 @@
-class OperationError < RuntimeError
-  include Bugsnag::MetaData
+module ComposableOperations
+  class OperationError < RuntimeError
+  end
 end

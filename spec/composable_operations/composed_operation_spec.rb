@@ -1,6 +1,9 @@
 require "spec_helper"
 
-describe ComposedOperation do
+describe ComposableOperations::ComposedOperation do
+
+  Operation = ::ComposableOperations::Operation
+  ComposedOperation = ::ComposableOperations::ComposedOperation
 
   let(:string_generator) do
     Class.new(Operation) do
