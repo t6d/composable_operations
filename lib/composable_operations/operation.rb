@@ -119,16 +119,14 @@ module ComposableOperations
     end
 
     def perform
-      ActiveSupport::Notifications.instrument(self.class.identifier, :operation => self) do
-        self.result = catch(:halt) do
-          prepare
-          result = execute
-          self.state = :succeeded
-          result
-        end
-
-        finalize
+      self.result = catch(:halt) do
+        prepare
+        result = execute
+        self.state = :succeeded
+        result
       end
+
+      finalize
 
       self.result
     end

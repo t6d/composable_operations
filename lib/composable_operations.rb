@@ -11,5 +11,3 @@ require_relative "composable_operations/operation_error"
 require_relative "composable_operations/operation"
 require_relative "composable_operations/composed_operation"
 
-require_relative "composable_operations/matcher" if defined?(RSpec)
-
