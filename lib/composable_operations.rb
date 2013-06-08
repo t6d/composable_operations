@@ -1,6 +1,4 @@
 require 'smart_properties'
-require 'active_support/inflector'
-require 'active_support/notifications'
 
 module ComposableOperations
   # Your code goes here...

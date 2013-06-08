@@ -305,32 +305,6 @@ describe ComposableOperations::Operation do
         expect { failing_operation_with_custom_exception.perform }.to raise_error(custom_exception, "Operation failed")
       end
 
-      context "that provides additional meta data", pending: true do
-
-        let(:custom_exception_with_meta_data) { Class.new(custom_exception) { include Bugsnag::MetaData } }
-
-        subject(:failing_operation_with_meta_data_enabled_exception) do
-          custom_exception_with_meta_data = custom_exception_with_meta_data()
-          Class.new(failing_operation) do
-            raises custom_exception_with_meta_data do
-              { severity: severity }
-            end
-            def severity
-              :high
-            end
-          end
-        end
-
-        specify "this meta data should be accessible when examining the exception" do
-          begin
-            failing_operation_with_meta_data_enabled_exception.perform
-          rescue custom_exception_with_meta_data => e
-            e.bugsnag_meta_data.should be == { severity: :high }
-          end
-        end
-
-      end
-
     end
 
   end

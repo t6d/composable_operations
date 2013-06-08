@@ -8,17 +8,10 @@ module ComposableOperations
       def perform(*args)
         operation = new(*args)
         operation.perform
-        if operation.failed?
-          exception = self.exception.new
-          exception.bugsnag_meta_data = exception_meta_data_for(operation) if exception.respond_to?(:bugsnag_meta_data)
-          raise exception, operation.message, operation.backtrace if operation.failed?
-        else
-          operation.result
-        end
-      end
 
-      def identifier
-        name.to_s.underscore.split('/').reverse.join('.') + ".operation"
+        raise exception, operation.message, operation.backtrace if operation.failed?
+
+        operation.result
       end
 
       def preparators
@@ -47,10 +40,6 @@ module ComposableOperations
         @exception or defined?(super) ? super : OperationError
       end
 
-      def exception_meta_data_for(operation)
-        operation.instance_exec &(@exception_meta_data or defined?(super) ? super : lambda { nil })
-      end
-
       protected
 
         def before(&callback)
@@ -74,9 +63,8 @@ module ComposableOperations
           end
         end
 
-        def raises(exception, meta_data = nil, &block)
+        def raises(exception)
           @exception = exception
-          @exception_meta_data = block ? block : lambda { meta_data }
         end
 
       private
