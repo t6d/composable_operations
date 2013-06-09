@@ -2,11 +2,8 @@ require "spec_helper"
 
 describe ComposableOperations::ComposedOperation do
 
-  Operation = ::ComposableOperations::Operation
-  ComposedOperation = ::ComposableOperations::ComposedOperation
-
   let(:string_generator) do
-    Class.new(Operation) do
+    Class.new(ComposableOperations::Operation) do
       def self.name
         "StringGenerator"
       end
@@ -18,7 +15,7 @@ describe ComposableOperations::ComposedOperation do
   end
 
   let(:string_capitalizer) do
-    Class.new(Operation) do
+    Class.new(ComposableOperations::Operation) do
       def self.name
         "StringCapitalizer"
       end
@@ -30,7 +27,7 @@ describe ComposableOperations::ComposedOperation do
   end
 
   let(:halting_operation) do
-    Class.new(Operation) do
+    Class.new(ComposableOperations::Operation) do
       def execute
         halt
       end
@@ -42,7 +39,7 @@ describe ComposableOperations::ComposedOperation do
     subject(:composed_operation) do
       operation = string_generator
 
-      Class.new(ComposedOperation) do
+      Class.new(described_class) do
         use operation
       end
     end
@@ -56,7 +53,7 @@ describe ComposableOperations::ComposedOperation do
   context "when composed of two operations using the factory method '#chain'" do
 
     subject(:composed_operation) do
-      ComposedOperation.compose(string_generator, string_capitalizer).new
+      described_class.compose(string_generator, string_capitalizer).new
     end
 
     it { should succeed_to_perform.and_return("CHUNKY BACON") }
@@ -70,7 +67,7 @@ describe ComposableOperations::ComposedOperation do
     subject(:composed_operation) do
       operations = [string_generator, string_capitalizer]
 
-      Class.new(ComposedOperation) do
+      Class.new(described_class) do
         use operations.first
         use operations.last
       end
@@ -87,7 +84,7 @@ describe ComposableOperations::ComposedOperation do
   context "when composed of three operations, one that generates a string, one that halts and one that capatalizes strings" do
 
     subject(:composed_operation) do
-      ComposedOperation.compose(string_generator, halting_operation, string_capitalizer)
+      described_class.compose(string_generator, halting_operation, string_capitalizer)
     end
 
     it "should return a capitalized version of the generated string" do

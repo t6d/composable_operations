@@ -2,12 +2,10 @@ require 'spec_helper'
 
 describe ComposableOperations::Operation do
 
-  Operation = ::ComposableOperations::Operation
-
   context "that always returns nil when executed" do
 
     subject(:nil_operation) do
-      class << (operation = Operation.new(''))
+      class << (operation = described_class.new(''))
         def execute
           nil
         end
@@ -22,7 +20,7 @@ describe ComposableOperations::Operation do
   context "that always halts" do
 
     let(:halting_operation) do
-      Class.new(Operation) do
+      Class.new(described_class) do
         def execute
           halt "Full stop!"
         end
@@ -51,7 +49,7 @@ describe ComposableOperations::Operation do
   context "that always fails" do
 
     let(:failing_operation) do
-      Class.new(Operation) do
+      Class.new(described_class) do
         def execute
           fail "Operation failed"
         end
@@ -126,7 +124,7 @@ describe ComposableOperations::Operation do
   context "that always returns something when executed" do
 
     let(:simple_operation) do
-      Class.new(Operation) do
+      Class.new(described_class) do
         def execute
           ""
         end
@@ -190,7 +188,7 @@ describe ComposableOperations::Operation do
   context "that can be parameterized" do
 
     subject(:string_multiplier) do
-      Class.new(Operation) do
+      Class.new(described_class) do
         property :multiplier, :default => 3
 
         def execute
@@ -212,7 +210,7 @@ describe ComposableOperations::Operation do
   context "that processes two values (a string and a multiplier)" do
 
     subject(:string_multiplier) do
-      Class.new(Operation) do
+      Class.new(described_class) do
         processes :string, :multiplier
 
         def execute
