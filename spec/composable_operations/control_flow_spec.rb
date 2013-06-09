@@ -2,52 +2,54 @@ require 'spec_helper'
 
 describe "An operation with two before and two after filters =>" do
 
-  class TestOperation < ComposableOperations::Operation
+  let(:test_operation) do
+    Class.new(ComposableOperations::Operation) do
 
-    processes :flow_control
+      processes :flow_control
 
-    attr_accessor :trace
+      attr_accessor :trace
 
-    def initialize(input = [], options = {})
-      super
-      self.trace = [:initialize]
-    end
+      def initialize(input = [], options = {})
+        super
+        self.trace = [:initialize]
+      end
 
-    before do
-      trace << :outer_before
-      fail "Fail in outer before" if flow_control.include?(:fail_in_outer_before)
-      halt "Halt in outer before" if flow_control.include?(:halt_in_outer_before)
-    end
+      before do
+        trace << :outer_before
+        fail "Fail in outer before" if flow_control.include?(:fail_in_outer_before)
+        halt "Halt in outer before" if flow_control.include?(:halt_in_outer_before)
+      end
 
-    before do
-      trace << :inner_before
-      fail "Fail in inner before" if flow_control.include?(:fail_in_inner_before)
-      halt "Halt in inner before" if flow_control.include?(:halt_in_inner_before)
-    end
+      before do
+        trace << :inner_before
+        fail "Fail in inner before" if flow_control.include?(:fail_in_inner_before)
+        halt "Halt in inner before" if flow_control.include?(:halt_in_inner_before)
+      end
 
-    after do
-      trace << :inner_after
-      fail "Fail in inner after" if flow_control.include?(:fail_in_inner_after)
-      halt "Halt in inner after" if flow_control.include?(:halt_in_inner_after)
-    end
+      after do
+        trace << :inner_after
+        fail "Fail in inner after" if flow_control.include?(:fail_in_inner_after)
+        halt "Halt in inner after" if flow_control.include?(:halt_in_inner_after)
+      end
 
-    after do
-      trace << :outer_after
-      fail "Fail in outer after" if flow_control.include?(:fail_in_outer_after)
-      halt "Halt in outer after" if flow_control.include?(:halt_in_outer_after)
-    end
+      after do
+        trace << :outer_after
+        fail "Fail in outer after" if flow_control.include?(:fail_in_outer_after)
+        halt "Halt in outer after" if flow_control.include?(:halt_in_outer_after)
+      end
 
-    def execute
-      trace << :execute_start
-      fail "Fail in execute" if flow_control.include?(:fail_in_execute)
-      halt "Halt in execute" if flow_control.include?(:halt_in_execute)
-      trace << :execute_stop
-      :final_result
+      def execute
+        trace << :execute_start
+        fail "Fail in execute" if flow_control.include?(:fail_in_execute)
+        halt "Halt in execute" if flow_control.include?(:halt_in_execute)
+        trace << :execute_stop
+        :final_result
+      end
     end
   end
 
   context "when run and everything works as expected =>" do
-    subject       { TestOperation.new }
+    subject       { test_operation.new }
     before(:each) { subject.perform }
 
     it ("should run 'initialize' first")                    { subject.trace[0].should eq(:initialize)    }
@@ -137,7 +139,7 @@ describe "An operation with two before and two after filters =>" do
   ]
 
   context "when initialized with input that leads to =>" do
-    subject { TestOperation.new(input) }
+    subject { test_operation.new(input) }
     before(:each) { subject.perform }
 
     test_vectors.each do |tv|
@@ -155,28 +157,28 @@ describe "An operation with two before and two after filters =>" do
   end
 
   context "when halt and fail are used together" do
-    subject { TestOperation.new([:halt_in_execute, :fail_in_inner_after]) }
+    subject { test_operation.new([:halt_in_execute, :fail_in_inner_after]) }
     it "should raise on calling operation.perform" do
       expect { subject.perform }.to raise_error
     end
   end
 
   context "when fail and halt are used together" do
-    subject { TestOperation.new([:fail_in_execute, :halt_in_inner_after]) }
+    subject { test_operation.new([:fail_in_execute, :halt_in_inner_after]) }
     it "should raise on calling operation.perform" do
       expect { subject.perform }.to raise_error
     end
   end
 
   context "when halt is used twice" do
-    subject { TestOperation.new([:halt_in_execute, :halt_in_inner_after]) }
+    subject { test_operation.new([:halt_in_execute, :halt_in_inner_after]) }
     it "should raise on calling operation.perform" do
       expect { subject.perform }.to raise_error
     end
   end
 
   context "when fail is used twice" do
-    subject { TestOperation.new([:fail_in_execute, :fail_in_inner_after]) }
+    subject { test_operation.new([:fail_in_execute, :fail_in_inner_after]) }
     it "should raise on calling operation.perform" do
       expect { subject.perform }.to raise_error
     end
