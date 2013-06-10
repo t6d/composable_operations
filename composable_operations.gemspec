@@ -9,7 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Konstantin Tennhard"]
   spec.email         = ["me@t6d.de"]
   spec.summary       = %q{Tool set for operation pipelines.}
-  spec.description   = %q{Composable Operations is a tool set for creating easy-to-use operation pipelines.}
+  spec.description   = %q{Composable Operations is a tool set for creating operations and assembling
+multiple of these operations in operation pipelines.}
   spec.homepage      = "http://github.com/t6d/composable_operations"
   spec.license       = "MIT"
 
