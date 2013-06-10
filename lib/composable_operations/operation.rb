@@ -140,7 +140,7 @@ module ComposableOperations
         throw :halt, return_value
       end
 
-      def halt(message = nil, return_value = input)
+      def halt(message = nil, return_value = nil)
         raise "Operation execution has already been aborted" if halted? or failed?
 
         self.state = :halted
