@@ -108,31 +108,31 @@ describe "An operation with two before and two after filters =>" do
     }, {
       :context => "halting in outer_before filter =>",
       :input   => [:halt_in_outer_before],
-      :output  => [:halt_in_outer_before],
+      :output  => nil,
       :trace   => [:initialize, :outer_before, :inner_after, :outer_after],
       :state   => :halted
     }, {
       :context => "halting in inner_before filter =>",
       :input   => [:halt_in_inner_before],
-      :output  => [:halt_in_inner_before],
+      :output  => nil,
       :trace   => [:initialize, :outer_before, :inner_before, :inner_after, :outer_after],
       :state   => :halted
     }, {
       :context => "halting in execute =>",
       :input   => [:halt_in_execute],
-      :output  => [:halt_in_execute],
+      :output  => nil,
       :trace   => [:initialize, :outer_before, :inner_before, :execute_start, :inner_after, :outer_after],
       :state   => :halted
     }, {
       :context => "halting in inner_after filter =>",
       :input   => [:halt_in_inner_after],
-      :output  => [:halt_in_inner_after],
+      :output  => nil,
       :trace   => [:initialize, :outer_before, :inner_before, :execute_start, :execute_stop, :inner_after, :outer_after],
       :state   => :halted
     }, {
       :context => "halting in outer_after filter =>",
       :input   => [:halt_in_outer_after],
-      :output  => [:halt_in_outer_after],
+      :output  => nil,
       :trace   => [:initialize, :outer_before, :inner_before, :execute_start, :execute_stop, :inner_after, :outer_after],
       :state   => :halted
     }

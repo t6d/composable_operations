@@ -17,12 +17,12 @@ describe ComposableOperations::Operation do
 
   end
 
-  context "that always halts" do
+  context "that always halts and returns its original input" do
 
     let(:halting_operation) do
       Class.new(described_class) do
         def execute
-          halt "Full stop!"
+          halt "Full stop!", input
         end
       end
     end

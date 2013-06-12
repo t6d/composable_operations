@@ -88,7 +88,7 @@ describe ComposableOperations::ComposedOperation do
     end
 
     it "should return a capitalized version of the generated string" do
-      composed_operation.perform.should be == "chunky bacon"
+      composed_operation.perform.should be == nil
     end
 
     it "should only execute the first two operations" do
