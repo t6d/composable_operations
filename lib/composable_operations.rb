@@ -1,4 +1,5 @@
 require 'smart_properties'
+require 'delegate'
 
 module ComposableOperations
   # Your code goes here...
