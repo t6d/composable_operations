@@ -26,6 +26,21 @@ describe ComposableOperations::ComposedOperation do
     end
   end
 
+  let(:string_multiplier) do
+    Class.new(ComposableOperations::Operation) do
+      property :multiplicator, default: 1, converts: :to_i, required: true
+      property :separator, default: ' ', converts: :to_s, required: true
+
+      def self.name
+        "StringMultiplier"
+      end
+
+      def execute
+        (Array(input) * multiplicator).join(separator)
+      end
+    end
+  end
+
   let(:halting_operation) do
     Class.new(ComposableOperations::Operation) do
       def execute
@@ -50,7 +65,22 @@ describe ComposableOperations::ComposedOperation do
 
   end
 
-  context "when composed of two operations using the factory method '#chain'" do
+  context "when composed of two operations, one that generates a string and one that multiplies it" do
+
+    subject(:composed_operation) do
+      string_generator = self.string_generator
+      string_multiplier = self.string_multiplier
+
+      Class.new(described_class) do
+        use string_generator
+        use string_multiplier, separator: ' - ', multiplicator: 3
+      end.new
+    end
+
+    it { should succeed_to_perform.and_return('chunky bacon - chunky bacon - chunky bacon') }
+
+  end
+
   context "when composed of two operations using the factory method '.compose'" do
 
     subject(:composed_operation) do
