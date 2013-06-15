@@ -51,6 +51,7 @@ describe ComposableOperations::ComposedOperation do
   end
 
   context "when composed of two operations using the factory method '#chain'" do
+  context "when composed of two operations using the factory method '.compose'" do
 
     subject(:composed_operation) do
       described_class.compose(string_generator, string_capitalizer).new
