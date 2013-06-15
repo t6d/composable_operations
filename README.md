@@ -210,7 +210,7 @@ StrictDateParser.perform("") # => ComposableOperations::OperationError: no times
 Operations and composed operations support
 [SmartProperties](http://github.com/t6d/smart_properties) to conveniently
 provide additional settings upon initialization of an operation. In the
-example, below an operation is defined that indents a given string. The indent
+example below, an operation is defined that indents a given string. The indent
 is set to 2 by default but can easily be changed by supplying an options hash
 to the initializer.
 
@@ -229,6 +229,20 @@ class Indention < ComposableOperations::Operation
 end
 
 Indention.perform("Hello World", indent: 4) # => "    Hello World"
+```
+
+Operations that are part of an composed operation can be configured by calling
+the `.use` method with a hash of options as the second argument. See the
+listing below for an example.
+
+```ruby
+class SomeComposedOperation < ComposableOperations::ComposedOperation
+
+  # ...
+  use Indention, indent: 4
+  # ...
+
+ end
 ```
 
 ## Contributing
