@@ -1,7 +1,7 @@
 module ComposableOperations
   class ComposedOperation < Operation
 
-    class AutoConfiguringOperation < SimpleDelegator
+    class OperationFactory < SimpleDelegator
 
       def initialize(operation_class, options = {})
         super(operation_class)
@@ -23,7 +23,7 @@ module ComposableOperations
       end
 
       def use(operation, options = {})
-        (@operations ||= []) << AutoConfiguringOperation.new(operation, options)
+        (@operations ||= []) << OperationFactory.new(operation, options)
       end
 
       def compose(*operations, &block)
