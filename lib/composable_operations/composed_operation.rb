@@ -48,9 +48,8 @@ module ComposableOperations
     protected
 
       def execute
-        self.class.operations.inject(input) do |data, operation_and_options|
-          operation, options = *operation_and_options
-          operation = operation.new(data, options)
+        self.class.operations.inject(input) do |data, operation|
+          operation = operation.new(data)
           operation.perform
 
           if operation.failed?
