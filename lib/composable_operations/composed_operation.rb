@@ -5,17 +5,14 @@ module ComposableOperations
 
       def initialize(operation_class, options = {})
         super(operation_class)
-        @__options__ = options
+        @_options = options
       end
 
-      def new(input = nil, options = {})
-        options = Hash(__options__).merge(Hash(options))
-        __getobj__.new(input, options)
+      def create(context, input = nil)
+        new input, Hash[Hash(@_options).map do |key, value|
+          [key, value.kind_of?(Proc) ? context.instance_exec(&value) : value]
+        end]
       end
-
-      protected
-
-        attr_reader :__options__
 
     end
 
@@ -49,7 +46,7 @@ module ComposableOperations
 
       def execute
         self.class.operations.inject(input) do |data, operation|
-          operation = operation.new(data)
+          operation = operation.create(self, data)
           operation.perform
 
           if operation.failed?
