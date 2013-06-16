@@ -1,21 +1,18 @@
 module ComposableOperations
   class ComposedOperation < Operation
 
-    class AutoConfiguringOperation < SimpleDelegator
+    class OperationFactory < SimpleDelegator
 
       def initialize(operation_class, options = {})
         super(operation_class)
-        @__options__ = options
+        @_options = options
       end
 
-      def new(input = nil, options = {})
-        options = Hash(__options__).merge(Hash(options))
-        __getobj__.new(input, options)
+      def create(context, input = nil)
+        new input, Hash[Hash(@_options).map do |key, value|
+          [key, value.kind_of?(Proc) ? context.instance_exec(&value) : value]
+        end]
       end
-
-      protected
-
-        attr_reader :__options__
 
     end
 
@@ -26,7 +23,7 @@ module ComposableOperations
       end
 
       def use(operation, options = {})
-        (@operations ||= []) << AutoConfiguringOperation.new(operation, options)
+        (@operations ||= []) << OperationFactory.new(operation, options)
       end
 
       def compose(*operations, &block)
@@ -48,9 +45,8 @@ module ComposableOperations
     protected
 
       def execute
-        self.class.operations.inject(input) do |data, operation_and_options|
-          operation, options = *operation_and_options
-          operation = operation.new(data, options)
+        self.class.operations.inject(input) do |data, operation|
+          operation = operation.create(self, data)
           operation.perform
 
           if operation.failed?

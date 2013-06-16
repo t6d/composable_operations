@@ -72,8 +72,10 @@ describe ComposableOperations::ComposedOperation do
       string_multiplier = self.string_multiplier
 
       Class.new(described_class) do
+        property :multiplicator, default: 3
+
         use string_generator
-        use string_multiplier, separator: ' - ', multiplicator: 3
+        use string_multiplier, separator: ' - ', multiplicator: lambda { multiplicator }
       end.new
     end
 
