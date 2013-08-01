@@ -81,9 +81,14 @@ module ComposableOperations
     attr_reader :message
     attr_reader :backtrace
 
-    def initialize(input = nil, options = {})
-      super(options)
-      @input = input
+    def initialize(*args)
+      super(args.last.kind_of?(Hash) ? args.pop : {})
+      @input = case args.length
+               when 0 then nil
+               when 1 then args.first
+               else
+                 args
+               end
     end
 
     def failed?
