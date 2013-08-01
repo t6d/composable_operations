@@ -9,7 +9,7 @@ module ComposableOperations
       end
 
       def create(context, input = nil)
-        new input, Hash[Hash(@_options).map do |key, value|
+        new *Array(input), Hash[Array(@_options).map do |key, value|
           [key, value.kind_of?(Proc) ? context.instance_exec(&value) : value]
         end]
       end
