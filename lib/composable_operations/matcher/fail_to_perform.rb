@@ -64,7 +64,13 @@ module ComposableOperations
             reasons = []
             reasons << "it did not fail at all" unless failed?
             reasons << "its message was not as expected" unless message_as_expected?
-            reasons << "it did not return the expected result" unless result_as_expected?
+            unless result_as_expected?
+              reasons << [
+                "it did not return the expected result",
+                "Expected: #{result.inspect}",
+                "Got: #{operation.result.inspect}"
+              ].join("\n\t  ")
+            end
             reasons.map { |r| "\t- #{r}" }.join("\n")
           end
 

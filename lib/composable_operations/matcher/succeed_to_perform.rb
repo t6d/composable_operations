@@ -1,6 +1,6 @@
 module ComposableOperations
   module Matcher
-module SucceedToPerform
+    module SucceedToPerform
       class Matcher
 
         def matches?(operation)
@@ -51,7 +51,13 @@ module SucceedToPerform
           def failure_reasons
             reasons = []
             reasons << "it did not succeed at all" unless succeeded?
-            reasons << "it did not return the expected result" unless result_as_expected?
+            unless result_as_expected?
+              reasons << [
+                "it did not return the expected result",
+                "Expected: #{result.inspect}",
+                "Got: #{operation.result.inspect}"
+              ].join("\n\t  ")
+            end
             reasons.map { |r| "\t- #{r}" }.join("\n")
           end
 
