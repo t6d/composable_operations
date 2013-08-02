@@ -22,6 +22,7 @@ multiple of these operations in operation pipelines.}
   spec.add_dependency "smart_properties", "~> 1.0"
 
   spec.add_development_dependency "bundler", "~> 1.3"
+  spec.add_development_dependency "pry", "~> 0.9.0"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec", "~> 2.13"
 end
