@@ -18,9 +18,15 @@ module ComposableOperations
           self
         end
 
+        def when_initialized_with(*input)
+          @input = input
+          self
+        end
+
         def description
           description = "fail to perform"
           description += " because #{message}" if message
+          description += " when initialized with custom input" if input
           description += " and return the expected result" if result
           description
         end
@@ -38,8 +44,10 @@ module ComposableOperations
           attr_reader :operation
           attr_reader :message
           attr_reader :result
+          attr_reader :input
 
           def operation=(operation)
+            operation = operation.new(*input) if operation.kind_of?(Class)
             operation.perform
             @operation = operation
           end
