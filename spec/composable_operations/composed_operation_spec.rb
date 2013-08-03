@@ -16,12 +16,14 @@ describe ComposableOperations::ComposedOperation do
 
   let(:string_capitalizer) do
     Class.new(ComposableOperations::Operation) do
+      processes :text
+
       def self.name
         "StringCapitalizer"
       end
 
       def execute
-        input.upcase
+        text.upcase
       end
     end
   end
