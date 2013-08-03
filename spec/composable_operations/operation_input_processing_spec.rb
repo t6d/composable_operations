@@ -118,3 +118,40 @@ describe ComposableOperations::Operation, "input processing:" do
   end
 
 end
+
+describe ComposableOperations::ComposedOperation, "input processing:" do
+
+  describe "A composed operation that consists of a producer and a consumer" do
+
+    let(:producer) do
+      Class.new(ComposableOperations::Operation) do
+        def execute
+          return 1, 2
+        end
+      end
+    end
+
+    let(:consumer) do
+      Class.new(ComposableOperations::Operation) do
+        processes :first_operand, :second_operand
+        def execute
+          first_operand + second_operand
+        end
+      end
+    end
+
+    subject(:operation) do
+      producer = self.producer
+      consumer = self.consumer
+
+      Class.new(described_class) do
+        use producer
+        use consumer
+      end
+    end
+
+    it { should succeed_to_perform.and_return(3) }
+
+  end
+
+end
