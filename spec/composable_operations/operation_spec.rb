@@ -22,7 +22,7 @@ describe ComposableOperations::Operation do
     let(:halting_operation) do
       Class.new(described_class) do
         def execute
-          halt "Full stop!", input
+          halt "Full stop!", input.first
         end
       end
     end
@@ -169,14 +169,10 @@ describe ComposableOperations::Operation do
 
     context "when extended with a finalizer that checks that the result is not an empty string" do
 
-      let(:simple_operation_with_sanity_check) do
+      subject(:simple_operation_with_sanity_check) do
         Class.new(simple_operation) do
           after { fail "the operational result is an empty string" if self.result == "" }
         end
-      end
-
-      subject(:simple_operation_with_sanity_check_instance) do
-        simple_operation_with_sanity_check.new
       end
 
       it { should fail_to_perform.because("the operational result is an empty string") }
@@ -189,21 +185,17 @@ describe ComposableOperations::Operation do
 
     subject(:string_multiplier) do
       Class.new(described_class) do
+        processes :text
         property :multiplier, :default => 3
 
         def execute
-          input.to_s * multiplier
+          text.to_s * multiplier
         end
       end
     end
 
-    it "should operate according to the specified default value" do
-      string_multiplier.perform("-").should be == "---"
-    end
-
-    it "should allow to overwrite default settings" do
-      string_multiplier.perform("-", :multiplier => 5).should be == "-----"
-    end
+    it { should succeed_to_perform.when_initialized_with("-").and_return("---") }
+    it { should succeed_to_perform.when_initialized_with("-", multiplier: 5).and_return("-----") }
 
   end
 
@@ -219,9 +211,7 @@ describe ComposableOperations::Operation do
       end
     end
 
-    it "should build a string that is multiplier-times long" do
-      string_multiplier.perform(["-", 3]).should be == "---"
-    end
+    it { should succeed_to_perform.when_initialized_with("-", 3).and_return("---") }
 
   end
 
