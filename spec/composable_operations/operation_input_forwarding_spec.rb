@@ -2,6 +2,35 @@ require 'spec_helper'
 
 describe ComposableOperations::ComposedOperation, "input forwarding:" do
 
+  describe "An operation pipeline that first constructs an array with two elements and then passes it to an operation that accepts two input parameters and returns the second one" do
+
+    let(:array_generator) do
+      Class.new(ComposableOperations::Operation) do
+        def execute
+          [:first_element, :second_element]
+        end
+      end
+    end
+
+    let(:extractor) do
+      Class.new(ComposableOperations::Operation) do
+        processes :first_parameter, :second_parameter
+        def execute
+          second_parameter
+        end
+      end
+    end
+
+    subject(:pipeline) do
+      ComposableOperations::ComposedOperation.compose(array_generator, extractor)
+    end
+
+    it "should return the correct element" do
+      result = pipeline.perform
+      result.should == :second_element
+    end
+  end
+
   describe "An operation pipeline that first constructs an enumerator, then passes it from operation to operation and finally returns it as the result" do
 
     let(:enum_generator) do
