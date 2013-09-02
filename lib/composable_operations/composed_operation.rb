@@ -46,7 +46,11 @@ module ComposableOperations
 
       def execute
         self.class.operations.inject(input) do |data, operation|
-          operation = operation.create(self, *data)
+          operation = if data.respond_to?(:to_ary)
+                        operation.create(self, *data)
+                      else
+                        operation.create(self, data)
+                      end
           operation.perform
 
           if operation.failed?
