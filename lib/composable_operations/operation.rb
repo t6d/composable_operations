@@ -5,6 +5,12 @@ module ComposableOperations
 
     class << self
 
+      attr_writer :arity
+
+      def arity
+        @arity || 0
+      end
+
       def perform(*args)
         operation = new(*args)
         operation.perform
@@ -51,11 +57,11 @@ module ComposableOperations
         end
 
         def processes(*names)
+          self.arity = names.length
+
           case names.length
           when 0
             raise ArgumentError, "#{self}.#{__callee__} expects at least one argument"
-          when 1
-            alias_method names[0].to_sym, :input
           else
             names.each_with_index do |name, index|
               define_method(name) { input[index] }
@@ -81,9 +87,13 @@ module ComposableOperations
     attr_reader :message
     attr_reader :backtrace
 
-    def initialize(input = nil, options = {})
+    def initialize(*args)
+      named_input_parameters   = args.shift(self.class.arity)
+      options                  = args.last.kind_of?(Hash) ? args.pop : {}
+      unnamed_input_parameters = args
+
+      @input = named_input_parameters + unnamed_input_parameters
       super(options)
-      @input = input
     end
 
     def failed?

@@ -1,5 +1,6 @@
 require 'bundler/setup'
 require 'rspec'
+require 'pry'
 
 require 'composable_operations'
 require 'composable_operations/matcher'

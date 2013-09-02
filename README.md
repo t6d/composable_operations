@@ -217,13 +217,15 @@ to the initializer.
 ```ruby
 class Indention < ComposableOperations::Operation
 
+  processes :text
+
   property :indent, default: 2,
                     converts: lambda { |value| value.to_s.to_i },
                     accepts: lambda { |value| value >= 0 },
                     required: true
 
   def execute
-    input.split("\n").map { |line| " " * indent + line }.join("\n")
+    text.split("\n").map { |line| " " * indent + line }.join("\n")
   end
 
 end

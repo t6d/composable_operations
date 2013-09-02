@@ -8,8 +8,8 @@ module ComposableOperations
         @_options = options
       end
 
-      def create(context, input = nil)
-        new input, Hash[Hash(@_options).map do |key, value|
+      def create(context, *input)
+        new *input, Hash[Array(@_options).map do |key, value|
           [key, value.kind_of?(Proc) ? context.instance_exec(&value) : value]
         end]
       end
@@ -46,7 +46,11 @@ module ComposableOperations
 
       def execute
         self.class.operations.inject(input) do |data, operation|
-          operation = operation.create(self, data)
+          operation = if data.respond_to?(:to_ary)
+                        operation.create(self, *data)
+                      else
+                        operation.create(self, data)
+                      end
           operation.perform
 
           if operation.failed?
