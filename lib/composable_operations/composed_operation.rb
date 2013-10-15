@@ -54,7 +54,7 @@ module ComposableOperations
           operation.perform
 
           if operation.failed?
-            fail operation.message, operation.result, operation.backtrace
+            fail operation.exception
           elsif operation.halted?
             halt operation.message, operation.result
           end
