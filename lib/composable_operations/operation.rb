@@ -15,7 +15,7 @@ module ComposableOperations
         operation = new(*args)
         operation.perform
 
-        raise exception, operation.message, operation.backtrace if operation.failed?
+        raise operation.exception if operation.failed?
 
         operation.result
       end
@@ -86,6 +86,7 @@ module ComposableOperations
     attr_reader :result
     attr_reader :message
     attr_reader :backtrace
+    attr_reader :exception
 
     def initialize(*args)
       named_input_parameters   = args.shift(self.class.arity)
@@ -136,18 +137,42 @@ module ComposableOperations
       attr_writer :message
       attr_writer :result
       attr_writer :backtrace
+      attr_writer :exception
 
       def execute
         raise NotImplementedError, "#{name}#execute not implemented"
       end
 
-      def fail(message = nil, return_value = nil, backtrace = caller)
+      def fail(*args)
         raise "Operation execution has already been aborted" if halted? or failed?
+        exception, message, backtrace = nil, nil, nil
+
+        case args.length
+        when 1
+          value = args[0]
+          if Exception === value
+            exception = value
+          elsif Class === value && Exception > value
+            exception = value
+            message = value.message
+            backtrace = value.backtrace
+          else
+            message = value
+          end
+        when 2, 3
+          exception, message, backtrace = args[0], args[1], args[2]
+        end
+
+        backtrace ||= caller
+        exception ||= self.class.exception
+        exception = Class === exception ? exception.new(message) : exception
+        exception.set_backtrace(backtrace)
 
         self.state = :failed
         self.backtrace = backtrace
         self.message = message
-        throw :halt, return_value
+        self.exception = exception
+        throw :halt, nil
       end
 
       def halt(message = nil, return_value = nil)
