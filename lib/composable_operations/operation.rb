@@ -43,7 +43,7 @@ module ComposableOperations
       end
 
       def exception
-        @exception or defined?(super) ? super : OperationError
+        OperationError
       end
 
       protected
@@ -70,7 +70,7 @@ module ComposableOperations
         end
 
         def raises(exception)
-          @exception = exception
+          define_singleton_method(:exception) { exception }
         end
 
       private

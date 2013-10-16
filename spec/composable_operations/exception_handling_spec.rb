@@ -87,6 +87,17 @@ describe ComposableOperations::Operation, "that always fails:" do
         failing_operation_with_custom_default_exception_instance.exception.message.should be == 'Operation failed'
       end
     end
+
+    context "when subclassed" do
+      subject(:failing_operation_with_custom_default_exception_subclass) do
+        Class.new(failing_operation_with_custom_default_exception)
+      end
+
+      it "should raise the custom exception when executed" do
+        expect { failing_operation_with_custom_default_exception_subclass.perform }.
+          to raise_error(custom_exception, "Operation failed")
+      end
+    end
   end
 
   context "When a custom exception has been specified" do
