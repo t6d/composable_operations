@@ -65,6 +65,7 @@ module ComposableOperations
           else
             names.each_with_index do |name, index|
               define_method(name) { input[index] }
+              define_method("#{name}=") { |value| input[index] = value }
             end
           end
         end

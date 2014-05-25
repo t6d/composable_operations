@@ -117,6 +117,22 @@ describe ComposableOperations::Operation, "input processing:" do
 
   end
 
+  describe "An operation that takes a named argument and uses the setter for the named argument" do
+
+    subject(:operation) do
+      Class.new(described_class) do
+        processes :some_value
+        def execute
+          self.some_value = "changed"
+          self.some_value
+        end
+      end
+    end
+
+    it { should succeed_to_perform.when_initialized_with("unchanged").and_return("changed") }
+
+  end
+
 end
 
 describe ComposableOperations::ComposedOperation, "input processing:" do
