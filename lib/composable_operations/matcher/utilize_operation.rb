@@ -71,9 +71,10 @@ module ComposableOperations
           message.join("\n\t")
         end
 
-        def negative_failure_message
+        def failure_message_when_negated
           "Unexpected operation utilization"
         end
+        alias negative_failure_message failure_message_when_negated
 
       end
 
