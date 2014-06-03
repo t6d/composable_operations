@@ -15,7 +15,7 @@ describe ComposableOperations::Operation, "input processing:" do
       end
     end
 
-    it { should succeed_to_perform.when_initialized_with(input).and_return(input) }
+    it { is_expected.to succeed_to_perform.when_initialized_with(input).and_return(input) }
 
   end
 
@@ -29,8 +29,8 @@ describe ComposableOperations::Operation, "input processing:" do
       end
     end
 
-    it { should succeed_to_perform.when_initialized_with(key: :value).and_return([]) }
-    it { should succeed_to_perform.when_initialized_with(1, 2, 3, key: :value).and_return([1, 2, 3]) }
+    it { is_expected.to succeed_to_perform.when_initialized_with(key: :value).and_return([]) }
+    it { is_expected.to succeed_to_perform.when_initialized_with(1, 2, 3, key: :value).and_return([1, 2, 3]) }
 
   end
 
@@ -49,8 +49,8 @@ describe ComposableOperations::Operation, "input processing:" do
       end
     end
 
-    it { should succeed_to_perform.when_initialized_with(input, default_food: "bananas").and_return(food: "bananas") }
-    it { should succeed_to_perform.when_initialized_with(input).and_return(food: "chunky bacon") }
+    it { is_expected.to succeed_to_perform.when_initialized_with(input, default_food: "bananas").and_return(food: "bananas") }
+    it { is_expected.to succeed_to_perform.when_initialized_with(input).and_return(food: "chunky bacon") }
 
   end
 
@@ -65,7 +65,7 @@ describe ComposableOperations::Operation, "input processing:" do
       end
     end
 
-    it { should succeed_to_perform.when_initialized_with(1, 2).and_return(3) }
+    it { is_expected.to succeed_to_perform.when_initialized_with(1, 2).and_return(3) }
 
   end
 
@@ -80,8 +80,8 @@ describe ComposableOperations::Operation, "input processing:" do
       end
     end
 
-    it { should succeed_to_perform.when_initialized_with(1, 2).and_return([1, 2]) }
-    it { should succeed_to_perform.when_initialized_with(1, 2, 3).and_return([1, 2, 3]) }
+    it { is_expected.to succeed_to_perform.when_initialized_with(1, 2).and_return([1, 2]) }
+    it { is_expected.to succeed_to_perform.when_initialized_with(1, 2, 3).and_return([1, 2, 3]) }
 
   end
 
@@ -97,8 +97,8 @@ describe ComposableOperations::Operation, "input processing:" do
       end
     end
 
-    it { should succeed_to_perform.when_initialized_with(1, 2).and_return(3) }
-    it { should succeed_to_perform.when_initialized_with(1, 2, operator: :*).and_return(2) }
+    it { is_expected.to succeed_to_perform.when_initialized_with(1, 2).and_return(3) }
+    it { is_expected.to succeed_to_perform.when_initialized_with(1, 2, operator: :*).and_return(2) }
 
   end
 
@@ -113,7 +113,7 @@ describe ComposableOperations::Operation, "input processing:" do
       end
     end
 
-    it { should succeed_to_perform.when_initialized_with(1, 2, {food: "chunky bacon"}, { additional: :options }).and_return(food: "chunky bacon") }
+    it { is_expected.to succeed_to_perform.when_initialized_with(1, 2, {food: "chunky bacon"}, { additional: :options }).and_return(food: "chunky bacon") }
 
   end
 
@@ -129,7 +129,7 @@ describe ComposableOperations::Operation, "input processing:" do
       end
     end
 
-    it { should succeed_to_perform.when_initialized_with("unchanged").and_return("changed") }
+    it { is_expected.to succeed_to_perform.when_initialized_with("unchanged").and_return("changed") }
 
   end
 
@@ -166,7 +166,7 @@ describe ComposableOperations::ComposedOperation, "input processing:" do
       end
     end
 
-    it { should succeed_to_perform.and_return(3) }
+    it { is_expected.to succeed_to_perform.and_return(3) }
 
   end
 

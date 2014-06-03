@@ -13,7 +13,7 @@ describe ComposableOperations::Operation do
       operation
     end
 
-    it { should succeed_to_perform.and_return(nil) }
+    it { is_expected.to succeed_to_perform.and_return(nil) }
 
   end
 
@@ -32,16 +32,16 @@ describe ComposableOperations::Operation do
     end
 
     it "should return the input value when executed using the class' method perform" do
-      halting_operation.perform("Test").should be == "Test"
+      expect(halting_operation.perform("Test")).to be == "Test"
     end
 
     it "should return the input value when executed using the instance's peform method" do
-      halting_operation_instance.perform.should be == "Test"
+      expect(halting_operation_instance.perform).to be == "Test"
     end
 
     it "should have halted after performing" do
       halting_operation_instance.perform
-      halting_operation_instance.should be_halted
+      expect(halting_operation_instance).to be_halted
     end
 
   end
@@ -65,11 +65,11 @@ describe ComposableOperations::Operation do
     end
 
     it "should have a result" do
-      simple_operation_instance.result.should be
+      expect(simple_operation_instance.result).to be
     end
 
     it "should have succeeded" do
-      simple_operation_instance.should be_succeeded
+      expect(simple_operation_instance).to be_succeeded
     end
 
     context "when extended with a preparator and a finalizer" do
@@ -85,8 +85,8 @@ describe ComposableOperations::Operation do
       end
 
       it "should execute the preparator and finalizer when performing" do
-        logger.should_receive(:info).ordered.with("preparing")
-        logger.should_receive(:info).ordered.with("finalizing")
+        expect(logger).to receive(:info).ordered.with("preparing")
+        expect(logger).to receive(:info).ordered.with("finalizing")
         simple_operation_with_preparator_and_finalizer.perform
       end
 
@@ -100,7 +100,7 @@ describe ComposableOperations::Operation do
         end
       end
 
-      it { should fail_to_perform.because("the operational result is an empty string") }
+      it { is_expected.to fail_to_perform.because("the operational result is an empty string") }
 
     end
 
@@ -119,8 +119,8 @@ describe ComposableOperations::Operation do
       end
     end
 
-    it { should succeed_to_perform.when_initialized_with("-").and_return("---") }
-    it { should succeed_to_perform.when_initialized_with("-", multiplier: 5).and_return("-----") }
+    it { is_expected.to succeed_to_perform.when_initialized_with("-").and_return("---") }
+    it { is_expected.to succeed_to_perform.when_initialized_with("-", multiplier: 5).and_return("-----") }
 
   end
 
@@ -136,7 +136,7 @@ describe ComposableOperations::Operation do
       end
     end
 
-    it { should succeed_to_perform.when_initialized_with("-", 3).and_return("---") }
+    it { is_expected.to succeed_to_perform.when_initialized_with("-", 3).and_return("---") }
 
   end
 

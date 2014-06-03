@@ -27,7 +27,7 @@ describe ComposableOperations::ComposedOperation, "input forwarding:" do
 
     it "should return the correct element" do
       result = pipeline.perform
-      result.should == :second_element
+      expect(result).to eq(:second_element)
     end
   end
 
@@ -56,7 +56,7 @@ describe ComposableOperations::ComposedOperation, "input forwarding:" do
 
     it "should actually return an enumerator" do
       result = pipeline.perform
-      result.should be_kind_of(Enumerator)
+      expect(result).to be_kind_of(Enumerator)
     end
   end
 
@@ -94,7 +94,7 @@ describe ComposableOperations::ComposedOperation, "input forwarding:" do
 
     it "should actually return this object" do
       result = pipeline.perform
-      result.should == dummy
+      expect(result).to eq(dummy)
     end
   end
 

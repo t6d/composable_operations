@@ -22,20 +22,20 @@ describe ComposableOperations::Operation, "that always fails:" do
       end
 
       it "should have nil as result" do
-        failing_operation_instance.result.should be_nil
+        expect(failing_operation_instance.result).to be_nil
       end
 
       it "should have failed" do
-        failing_operation_instance.should be_failed
+        expect(failing_operation_instance).to be_failed
       end
 
       it "should have a message" do
-        failing_operation_instance.message.should_not be_nil
+        expect(failing_operation_instance.message).not_to be_nil
       end
 
       it "should have an exception of type OperationError whose message is 'Operation failed'" do
-        failing_operation_instance.exception.should be_kind_of(ComposableOperations::OperationError)
-        failing_operation_instance.exception.message.should be == 'Operation failed'
+        expect(failing_operation_instance.exception).to be_kind_of(ComposableOperations::OperationError)
+        expect(failing_operation_instance.exception.message).to eq('Operation failed')
       end
     end
 
@@ -54,7 +54,7 @@ describe ComposableOperations::Operation, "that always fails:" do
       end
 
       it "should execute the finalizers" do
-        supervisor.should_receive(:notify)
+        expect(supervisor).to receive(:notify)
         failing_operation_with_finalizer_instance.perform
       end
     end
@@ -83,8 +83,8 @@ describe ComposableOperations::Operation, "that always fails:" do
       end
 
       it "should have an exception of the custom exception type whose message is 'Operation failed'" do
-        failing_operation_with_custom_default_exception_instance.exception.should be_kind_of(custom_exception)
-        failing_operation_with_custom_default_exception_instance.exception.message.should be == 'Operation failed'
+        expect(failing_operation_with_custom_default_exception_instance.exception).to be_kind_of(custom_exception)
+        expect(failing_operation_with_custom_default_exception_instance.exception.message).to eq('Operation failed')
       end
     end
 
@@ -124,8 +124,8 @@ describe ComposableOperations::Operation, "that always fails:" do
       end
 
       it "should have an exception of the custom exception type whose message is 'Operation failed'" do
-        failing_operation_with_custom_exception_instance.exception.should be_kind_of(custom_exception)
-        failing_operation_with_custom_exception_instance.exception.message.should be == 'Operation failed'
+        expect(failing_operation_with_custom_exception_instance.exception).to be_kind_of(custom_exception)
+        expect(failing_operation_with_custom_exception_instance.exception.message).to eq('Operation failed')
       end
     end
 
@@ -147,8 +147,8 @@ describe ComposableOperations::Operation, "that always fails:" do
         end
 
         it "should have an exception of the custom exception type whose message is 'Operation failed'" do
-          failing_composed_operation_instance.exception.should be_kind_of(custom_exception)
-          failing_composed_operation_instance.exception.message.should be == 'Operation failed'
+          expect(failing_composed_operation_instance.exception).to be_kind_of(custom_exception)
+          expect(failing_composed_operation_instance.exception.message).to eq('Operation failed')
         end
       end
     end

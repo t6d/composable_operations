@@ -62,7 +62,7 @@ describe ComposableOperations::ComposedOperation do
     end
 
     it "should return this string as result" do
-      composed_operation.perform(nil).should be == "chunky bacon"
+      expect(composed_operation.perform(nil)).to eq("chunky bacon")
     end
 
   end
@@ -81,7 +81,7 @@ describe ComposableOperations::ComposedOperation do
       end.new
     end
 
-    it { should succeed_to_perform.and_return('chunky bacon - chunky bacon - chunky bacon') }
+    it { is_expected.to succeed_to_perform.and_return('chunky bacon - chunky bacon - chunky bacon') }
 
   end
 
@@ -91,9 +91,9 @@ describe ComposableOperations::ComposedOperation do
       described_class.compose(string_generator, string_capitalizer).new
     end
 
-    it { should succeed_to_perform.and_return("CHUNKY BACON") }
+    it { is_expected.to succeed_to_perform.and_return("CHUNKY BACON") }
 
-    it { should utilize_operations(string_generator, string_capitalizer) }
+    it { is_expected.to utilize_operations(string_generator, string_capitalizer) }
 
   end
 
@@ -109,10 +109,10 @@ describe ComposableOperations::ComposedOperation do
     end
 
     it "should return a capitalized version of the generated string" do
-      composed_operation.perform(nil).should be == "CHUNKY BACON"
+      expect(composed_operation.perform(nil)).to eq("CHUNKY BACON")
     end
 
-    it { should utilize_operations(string_generator, string_capitalizer) }
+    it { is_expected.to utilize_operations(string_generator, string_capitalizer) }
 
   end
 
@@ -123,17 +123,17 @@ describe ComposableOperations::ComposedOperation do
     end
 
     it "should return a capitalized version of the generated string" do
-      composed_operation.perform.should be == nil
+      expect(composed_operation.perform).to eq(nil)
     end
 
     it "should only execute the first two operations" do
-      string_generator.any_instance.should_receive(:perform).and_call_original
-      halting_operation.any_instance.should_receive(:perform).and_call_original
-      string_capitalizer.any_instance.should_not_receive(:perform)
+      expect_any_instance_of(string_generator).to receive(:perform).and_call_original
+      expect_any_instance_of(halting_operation).to receive(:perform).and_call_original
+      expect_any_instance_of(string_capitalizer).not_to receive(:perform)
       composed_operation.perform
     end
 
-    it { should utilize_operations(string_generator, halting_operation, string_capitalizer) }
+    it { is_expected.to utilize_operations(string_generator, halting_operation, string_capitalizer) }
   end
 
 end
