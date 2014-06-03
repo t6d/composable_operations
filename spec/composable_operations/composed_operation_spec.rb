@@ -1,7 +1,6 @@
 require "spec_helper"
 
 describe ComposableOperations::ComposedOperation do
-
   let(:string_generator) do
     Class.new(ComposableOperations::Operation) do
       def self.name
@@ -52,7 +51,6 @@ describe ComposableOperations::ComposedOperation do
   end
 
   context "when composed of one operation that generates a string no matter the input" do
-
     subject(:composed_operation) do
       operation = string_generator
 
@@ -64,11 +62,9 @@ describe ComposableOperations::ComposedOperation do
     it "should return this string as result" do
       expect(composed_operation.perform(nil)).to eq("chunky bacon")
     end
-
   end
 
   context "when composed of two operations, one that generates a string and one that multiplies it" do
-
     subject(:composed_operation) do
       string_generator = self.string_generator
       string_multiplier = self.string_multiplier
@@ -82,23 +78,18 @@ describe ComposableOperations::ComposedOperation do
     end
 
     it { is_expected.to succeed_to_perform.and_return('chunky bacon - chunky bacon - chunky bacon') }
-
   end
 
   context "when composed of two operations using the factory method '.compose'" do
-
     subject(:composed_operation) do
       described_class.compose(string_generator, string_capitalizer).new
     end
 
     it { is_expected.to succeed_to_perform.and_return("CHUNKY BACON") }
-
     it { is_expected.to utilize_operations(string_generator, string_capitalizer) }
-
   end
 
   context "when composed of two operations, one that generates a string and one that capitalizes strings, " do
-
     subject(:composed_operation) do
       operations = [string_generator, string_capitalizer]
 
@@ -113,11 +104,9 @@ describe ComposableOperations::ComposedOperation do
     end
 
     it { is_expected.to utilize_operations(string_generator, string_capitalizer) }
-
   end
 
   context "when composed of three operations, one that generates a string, one that halts and one that capatalizes strings" do
-
     subject(:composed_operation) do
       described_class.compose(string_generator, halting_operation, string_capitalizer)
     end
@@ -132,8 +121,7 @@ describe ComposableOperations::ComposedOperation do
       expect_any_instance_of(string_capitalizer).not_to receive(:perform)
       composed_operation.perform
     end
-
     it { is_expected.to utilize_operations(string_generator, halting_operation, string_capitalizer) }
   end
-
 end
+

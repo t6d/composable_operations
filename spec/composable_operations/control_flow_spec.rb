@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe "An operation with two before and two after filters =>" do
-
   let(:test_operation) do
     Class.new(ComposableOperations::Operation) do
 
@@ -65,9 +64,7 @@ describe "An operation with two before and two after filters =>" do
     it { is_expected.not_to be_halted    }
   end
 
-
   # Now: TEST ALL! the possible code flows systematically
-
   test_vectors = [
     {
       :context => "no complications =>",
@@ -183,5 +180,5 @@ describe "An operation with two before and two after filters =>" do
       expect { subject.perform }.to raise_error
     end
   end
-
 end
+
