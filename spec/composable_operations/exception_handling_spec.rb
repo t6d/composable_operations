@@ -40,7 +40,7 @@ describe ComposableOperations::Operation, "that always fails:" do
     end
 
     context "when extended with a finalizer" do
-      let(:supervisor) { mock("Supervisor") }
+      let(:supervisor) { double("Supervisor") }
 
       let(:failing_operation_with_finalizer) do
         supervisor = supervisor()
