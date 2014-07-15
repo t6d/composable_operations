@@ -1,9 +1,7 @@
 require 'spec_helper'
 
 describe ComposableOperations::Operation, "input processing:" do
-
   describe "An operation that takes a Hash as input" do
-
     let(:input) { {food: "chunky bacon" } }
 
     subject(:operation) do
@@ -15,12 +13,10 @@ describe ComposableOperations::Operation, "input processing:" do
       end
     end
 
-    it { should succeed_to_perform.when_initialized_with(input).and_return(input) }
-
+    it { is_expected.to succeed_to_perform.when_initialized_with(input).and_return(input) }
   end
 
   describe "An operation that takes no arguments except for a Hash of additional options" do
-
     subject(:operation) do
       Class.new(described_class) do
         def execute
@@ -29,13 +25,11 @@ describe ComposableOperations::Operation, "input processing:" do
       end
     end
 
-    it { should succeed_to_perform.when_initialized_with(key: :value).and_return([]) }
-    it { should succeed_to_perform.when_initialized_with(1, 2, 3, key: :value).and_return([1, 2, 3]) }
-
+    it { is_expected.to succeed_to_perform.when_initialized_with(key: :value).and_return([]) }
+    it { is_expected.to succeed_to_perform.when_initialized_with(1, 2, 3, key: :value).and_return([1, 2, 3]) }
   end
 
   describe "An operation that takes a Hash as input and an Hash of additional options" do
-
     let(:input) { { food: nil } }
 
     subject(:operation) do
@@ -49,13 +43,11 @@ describe ComposableOperations::Operation, "input processing:" do
       end
     end
 
-    it { should succeed_to_perform.when_initialized_with(input, default_food: "bananas").and_return(food: "bananas") }
-    it { should succeed_to_perform.when_initialized_with(input).and_return(food: "chunky bacon") }
-
+    it { is_expected.to succeed_to_perform.when_initialized_with(input, default_food: "bananas").and_return(food: "bananas") }
+    it { is_expected.to succeed_to_perform.when_initialized_with(input).and_return(food: "chunky bacon") }
   end
 
   describe "An operation that takes two named arguments as input and sums them up" do
-
     subject(:operation) do
       Class.new(described_class) do
         processes :first_operand, :second_operand
@@ -65,12 +57,10 @@ describe ComposableOperations::Operation, "input processing:" do
       end
     end
 
-    it { should succeed_to_perform.when_initialized_with(1, 2).and_return(3) }
-
+    it { is_expected.to succeed_to_perform.when_initialized_with(1, 2).and_return(3) }
   end
 
   describe "An operation that takes two named arguments as input and simply returns all input arguments as output" do
-
     subject(:operation) do
       Class.new(described_class) do
         processes :first_operand, :second_operand
@@ -80,13 +70,11 @@ describe ComposableOperations::Operation, "input processing:" do
       end
     end
 
-    it { should succeed_to_perform.when_initialized_with(1, 2).and_return([1, 2]) }
-    it { should succeed_to_perform.when_initialized_with(1, 2, 3).and_return([1, 2, 3]) }
-
+    it { is_expected.to succeed_to_perform.when_initialized_with(1, 2).and_return([1, 2]) }
+    it { is_expected.to succeed_to_perform.when_initialized_with(1, 2, 3).and_return([1, 2, 3]) }
   end
 
   describe "An operation that takes multiple arguments as input where the last of these arguments is a Hash" do
-
     subject(:operation) do
       Class.new(described_class) do
         processes :first_operand, :second_operand
@@ -97,13 +85,11 @@ describe ComposableOperations::Operation, "input processing:" do
       end
     end
 
-    it { should succeed_to_perform.when_initialized_with(1, 2).and_return(3) }
-    it { should succeed_to_perform.when_initialized_with(1, 2, operator: :*).and_return(2) }
-
+    it { is_expected.to succeed_to_perform.when_initialized_with(1, 2).and_return(3) }
+    it { is_expected.to succeed_to_perform.when_initialized_with(1, 2, operator: :*).and_return(2) }
   end
 
   describe "An operation that takes multiple arguments as input where the last of these arguments is a Hash, as well as, a Hash of additional options" do
-
     subject(:operation) do
       Class.new(described_class) do
         processes :some_value, :yet_another_value, :a_hash
@@ -113,12 +99,10 @@ describe ComposableOperations::Operation, "input processing:" do
       end
     end
 
-    it { should succeed_to_perform.when_initialized_with(1, 2, {food: "chunky bacon"}, { additional: :options }).and_return(food: "chunky bacon") }
-
+    it { is_expected.to succeed_to_perform.when_initialized_with(1, 2, {food: "chunky bacon"}, { additional: :options }).and_return(food: "chunky bacon") }
   end
 
   describe "An operation that takes a named argument and uses the setter for the named argument" do
-
     subject(:operation) do
       Class.new(described_class) do
         processes :some_value
@@ -129,16 +113,12 @@ describe ComposableOperations::Operation, "input processing:" do
       end
     end
 
-    it { should succeed_to_perform.when_initialized_with("unchanged").and_return("changed") }
-
+    it { is_expected.to succeed_to_perform.when_initialized_with("unchanged").and_return("changed") }
   end
-
 end
 
 describe ComposableOperations::ComposedOperation, "input processing:" do
-
   describe "A composed operation that consists of a producer and a consumer" do
-
     let(:producer) do
       Class.new(ComposableOperations::Operation) do
         def execute
@@ -166,8 +146,7 @@ describe ComposableOperations::ComposedOperation, "input processing:" do
       end
     end
 
-    it { should succeed_to_perform.and_return(3) }
-
+    it { is_expected.to succeed_to_perform.and_return(3) }
   end
-
 end
+

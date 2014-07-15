@@ -75,9 +75,10 @@ module ComposableOperations
           "the operation failed to perform for the following reason(s):\n#{failure_reasons}"
         end
 
-        def negative_failure_message
+        def failure_message_when_negated
           "the operation succeeded unexpectedly"
         end
+        alias negative_failure_message failure_message_when_negated
 
         private
 
@@ -120,9 +121,10 @@ module ComposableOperations
           "the operation did not fail to perform for the following reason(s):\n#{failure_reasons}"
         end
 
-        def negative_failure_message
+        def failure_message_when_negated
           "the operation failed unexpectedly"
         end
+        alias negative_failure_message failure_message_when_negated
 
         protected
 

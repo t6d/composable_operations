@@ -1,3 +1,3 @@
 module ComposableOperations
-  VERSION = "0.9.0"
+  VERSION = "0.9.1"
 end
