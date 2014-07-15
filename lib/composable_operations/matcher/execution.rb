@@ -181,6 +181,7 @@ module ComposableOperations
         def failure_message_when_negated
           "the operation was halted unexpectedly"
         end
+        alias negative_failure_message failure_message_when_negated
 
         protected
 
