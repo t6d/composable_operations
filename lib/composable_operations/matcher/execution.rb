@@ -14,6 +14,15 @@ module ComposableOperations
           self
         end
 
+        def failure_message
+          raise NotImplementedError, "Expected #{self.class} to implement ##{__callee__}"
+        end
+
+        def failure_message_when_negated
+          raise NotImplementedError, "Expected #{self.class} to implement ##{__callee__}"
+        end
+        alias negative_failure_message failure_message_when_negated
+
         protected
 
           attr_reader :operation
@@ -88,7 +97,6 @@ module ComposableOperations
         def failure_message_when_negated
           "the operation succeeded unexpectedly"
         end
-        alias negative_failure_message failure_message_when_negated
 
         private
 
@@ -134,7 +142,6 @@ module ComposableOperations
         def failure_message_when_negated
           "the operation failed unexpectedly"
         end
-        alias negative_failure_message failure_message_when_negated
 
         protected
 
@@ -181,7 +188,6 @@ module ComposableOperations
         def failure_message_when_negated
           "the operation was halted unexpectedly"
         end
-        alias negative_failure_message failure_message_when_negated
 
         protected
 
