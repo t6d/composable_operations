@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe ComposableOperations::ComposedOperation, "input forwarding:" do
-
   describe "An operation pipeline that first constructs an array with two elements and then passes it to an operation that accepts two input parameters and returns the second one" do
 
     let(:array_generator) do
@@ -27,12 +26,11 @@ describe ComposableOperations::ComposedOperation, "input forwarding:" do
 
     it "should return the correct element" do
       result = pipeline.perform
-      result.should == :second_element
+      expect(result).to eq(:second_element)
     end
   end
 
   describe "An operation pipeline that first constructs an enumerator, then passes it from operation to operation and finally returns it as the result" do
-
     let(:enum_generator) do
       Class.new(ComposableOperations::Operation) do
         def execute
@@ -56,12 +54,11 @@ describe ComposableOperations::ComposedOperation, "input forwarding:" do
 
     it "should actually return an enumerator" do
       result = pipeline.perform
-      result.should be_kind_of(Enumerator)
+      expect(result).to be_kind_of(Enumerator)
     end
   end
 
   describe "An operation pipeline that first constructs an object that responds #to_a, then passes it from operation to operation and finally returns it as the result" do
-
     let(:dummy) do
       Object.new.tap do |o|
         def o.to_a
@@ -94,8 +91,8 @@ describe ComposableOperations::ComposedOperation, "input forwarding:" do
 
     it "should actually return this object" do
       result = pipeline.perform
-      result.should == dummy
+      expect(result).to eq(dummy)
     end
   end
-
 end
+

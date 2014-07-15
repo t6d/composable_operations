@@ -28,6 +28,7 @@ module ComposableOperations
       end
 
       class Matcher
+        include RSpec::Mocks::ExampleMethods
 
         attr_reader :composite_operations
         attr_reader :tested_operation
@@ -46,13 +47,14 @@ module ComposableOperations
             @tested_instance = class_or_instance
           end
 
-          Operation.stub(:new => DummyOperation.new)
+          allow(Operation).to receive(:new).and_return(DummyOperation.new)
           composite_operations.each do |composite_operation|
             dummy_operation = DummyOperation.new
-            dummy_operation.should_receive(:perform).and_call_original
-            composite_operation.should_receive(:new).and_return(dummy_operation)
+            expect(dummy_operation).to receive(:perform).and_call_original
+            expect(composite_operation).to receive(:new).and_return(dummy_operation)
           end
-          tested_instance.stub(:prepare => true, :finalize => true)
+          allow(tested_instance).to receive(:prepare).and_return(true)
+          allow(tested_instance).to receive(:finalize).and_return(true)
           tested_instance.perform
 
           tested_operation.operations == composite_operations
@@ -71,9 +73,10 @@ module ComposableOperations
           message.join("\n\t")
         end
 
-        def negative_failure_message
+        def failure_message_when_negated
           "Unexpected operation utilization"
         end
+        alias negative_failure_message failure_message_when_negated
 
       end
 
