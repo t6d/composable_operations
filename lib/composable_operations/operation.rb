@@ -4,11 +4,14 @@ module ComposableOperations
     include SmartProperties
 
     class << self
+      attr_writer :arguments
 
-      attr_writer :arity
+      def arguments
+        @arguments ||= []
+      end
 
       def arity
-        @arity || 0
+        arguments.count
       end
 
       def perform(*args)
@@ -57,15 +60,13 @@ module ComposableOperations
         end
 
         def processes(*names)
-          self.arity = names.length
-
           case names.length
           when 0
             raise ArgumentError, "#{self}.#{__callee__} expects at least one argument"
           else
             names.each_with_index do |name, index|
-              define_method(name) { input[index] }
-              define_method("#{name}=") { |value| input[index] = value }
+              property(name, required: true) unless properties.key?(name)
+              arguments << name
             end
           end
         end
@@ -90,12 +91,21 @@ module ComposableOperations
     attr_reader :exception
 
     def initialize(*args)
-      named_input_parameters   = args.shift(self.class.arity)
-      options                  = args.last.kind_of?(Hash) ? args.pop : {}
-      unnamed_input_parameters = args
+      arity = self.class.arity
+      arguments = args.shift(arity)
+      attributes = args.last.kind_of?(Hash) ? args.pop : {}
 
-      @input = named_input_parameters + unnamed_input_parameters
-      super(options)
+      raise ArgumentError, "wrong number of arguments #{arguments.length + args.length} for #{arity}" unless args.empty?
+
+      self.class.arguments.each_with_index do |name, index|
+        attributes[name] = arguments[index]
+      end
+
+      super(attributes)
+    end
+
+    def input
+      self.class.arguments.map { |name| self[name] }
     end
 
     def failed?

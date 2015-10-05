@@ -8,8 +8,9 @@ module ComposableOperations
         @_options = options
       end
 
-      def create(context, *input)
-        new *input, Hash[Array(@_options).map do |key, value|
+      def new(context, *input)
+        input = input.shift(arity)
+        __getobj__.new *input, Hash[Array(@_options).map do |key, value|
           [key, value.kind_of?(Proc) ? context.instance_exec(&value) : value]
         end]
       end
@@ -23,6 +24,11 @@ module ComposableOperations
       end
 
       def use(operation, options = {})
+        if operations.empty?
+          arguments = operation.arguments
+          processes(*arguments) unless arguments.empty?
+        end
+
         (@operations ||= []) << OperationFactory.new(operation, options)
       end
 
@@ -47,9 +53,9 @@ module ComposableOperations
       def execute
         self.class.operations.inject(input) do |data, operation|
           operation = if data.respond_to?(:to_ary)
-                        operation.create(self, *data)
+                        operation.new(self, *data)
                       else
-                        operation.create(self, data)
+                        operation.new(self, data)
                       end
           operation.perform
 

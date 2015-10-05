@@ -2,14 +2,15 @@ require 'spec_helper'
 
 describe ComposableOperations::Operation do
   context "that always returns nil when executed" do
-    subject(:nil_operation) do
-      class << (operation = described_class.new(''))
+    let(:nil_operation) do
+       Class.new(described_class) do
         def execute
           nil
         end
       end
-      operation
     end
+
+    subject { nil_operation.new }
 
     it { is_expected.to succeed_to_perform.and_return(nil) }
   end
@@ -17,13 +18,14 @@ describe ComposableOperations::Operation do
   context "that always halts and returns its original input" do
     let(:halting_operation) do
       Class.new(described_class) do
+        processes :message
         def execute
           halt "Full stop!", input.first
         end
       end
     end
 
-    let(:halting_operation_instance) do
+    subject(:halting_operation_instance) do
       halting_operation.new("Test")
     end
 
