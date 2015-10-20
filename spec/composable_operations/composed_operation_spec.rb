@@ -29,6 +29,7 @@ describe ComposableOperations::ComposedOperation do
 
   let(:string_multiplier) do
     Class.new(ComposableOperations::Operation) do
+      processes :text
       property :multiplicator, default: 1, converts: :to_i, required: true
       property :separator, default: ' ', converts: :to_s, required: true
 
@@ -37,20 +38,24 @@ describe ComposableOperations::ComposedOperation do
       end
 
       def execute
-        (Array(input) * multiplicator).join(separator)
+        (Array(text) * multiplicator).join(separator)
       end
     end
   end
 
   let(:halting_operation) do
     Class.new(ComposableOperations::Operation) do
+      def self.name
+        "HaltingOperation"
+      end
+
       def execute
         halt
       end
     end
   end
 
-  context "when composed of one operation that generates a string no matter the input" do
+  context "when composed of one operation that generates" do
     subject(:composed_operation) do
       operation = string_generator
 
@@ -60,7 +65,7 @@ describe ComposableOperations::ComposedOperation do
     end
 
     it "should return this string as result" do
-      expect(composed_operation.perform(nil)).to eq("chunky bacon")
+      expect(composed_operation.perform).to eq("chunky bacon")
     end
   end
 
@@ -100,7 +105,7 @@ describe ComposableOperations::ComposedOperation do
     end
 
     it "should return a capitalized version of the generated string" do
-      expect(composed_operation.perform(nil)).to eq("CHUNKY BACON")
+      expect(composed_operation.perform).to eq("CHUNKY BACON")
     end
 
     it { is_expected.to utilize_operations(string_generator, string_capitalizer) }
@@ -122,6 +127,31 @@ describe ComposableOperations::ComposedOperation do
       composed_operation.perform
     end
     it { is_expected.to utilize_operations(string_generator, halting_operation, string_capitalizer) }
+  end
+
+  context "when composed of two operations; one that that capitalizes a string and one that repeats the string" do
+    subject(:composed_operation) do
+      operations = [string_capitalizer, string_multiplier]
+
+      Class.new(described_class) do
+        use operations.first
+        use operations.last, multiplicator: 2
+      end
+    end
+
+    it "should raise when instantiated with no input" do
+      expect { composed_operation.new }.to raise_error(ArgumentError)
+    end
+
+    it "should not raise when instantiated with a string" do
+      expect { composed_operation.new("some string") }.to_not raise_error
+    end
+
+    it "should have an input argument with the same name as the first operation" do
+      expect(composed_operation.arguments).to eq(string_capitalizer.arguments)
+    end
+
+    it { is_expected.to succeed_to_perform.when_initialized_with("hello").and_return("HELLO HELLO") }
   end
 end
 
