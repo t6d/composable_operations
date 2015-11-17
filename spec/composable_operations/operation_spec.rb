@@ -126,5 +126,66 @@ describe ComposableOperations::Operation do
 
     it { is_expected.to succeed_to_perform.when_initialized_with("-", 3).and_return("---") }
   end
+
+  context "inheritance" do
+    let(:base_operation) do
+      Class.new(described_class) do
+        processes :text
+      end
+    end
+
+    let(:sub_operation) do
+      Class.new(base_operation) do
+        def execute
+          text.upcase
+        end
+      end
+    end
+
+    let(:sub_operation_with_different_input) do
+      Class.new(base_operation) do
+        processes :text, :multiplier
+        def execute
+          text * multiplier
+        end
+      end
+    end
+
+    context "the base operation" do
+      subject! { base_operation }
+
+      it "should take one argument" do
+        expect(base_operation.arity).to eq(1)
+        expect(base_operation.arguments).to eq([:text])
+      end
+    end
+
+    context "the sub operation" do
+      subject! { sub_operation }
+
+      it "should take one argument" do
+        expect(base_operation.arity).to eq(1)
+        expect(base_operation.arguments).to eq([:text])
+      end
+
+      it { is_expected.to succeed_to_perform.when_initialized_with("lorem ipsum").and_return("LOREM IPSUM") }
+    end
+
+    context "the sub operation with different input" do
+      subject! { sub_operation_with_different_input }
+
+      it "should take two arguments" do
+        expect(sub_operation_with_different_input.arity).to eq(2)
+        expect(sub_operation_with_different_input.arguments).to eq([:text, :multiplier])
+      end
+
+      it "should not influence the arguments of base operation" do
+        expect(base_operation.arity).to eq(1)
+        expect(base_operation.arguments).to eq([:text])
+      end
+
+      it { is_expected.to succeed_to_perform.when_initialized_with("-", 3).and_return("---") }
+    end
+  end
 end
 

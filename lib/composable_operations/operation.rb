@@ -4,10 +4,8 @@ module ComposableOperations
     include SmartProperties
 
     class << self
-      attr_writer :arguments
-
       def arguments
-        @arguments ||= []
+        []
       end
 
       def arity
@@ -64,10 +62,8 @@ module ComposableOperations
           when 0
             raise ArgumentError, "#{self}.#{__callee__} expects at least one argument"
           else
-            names.each_with_index do |name, index|
-              property(name, required: true) unless properties.key?(name)
-              arguments << name
-            end
+            names.each { |name| property(name, required: true) unless properties.key?(name) }
+            define_singleton_method(:arguments) { names }
           end
         end
 
