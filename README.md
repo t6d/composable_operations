@@ -31,7 +31,7 @@ operation pipelines by subclassing `ComposableOperations::ComposedOperation`.
 
 To define an operation, two steps are necessary:
 
-1. create a new subclass of `ComposableOperations::Operations`, and
+1. create a new subclass of `ComposableOperations::Operation`, and
 2. implement the `#execute` method.
 
 The listing below shows an operation that extracts a timestamp in the format
