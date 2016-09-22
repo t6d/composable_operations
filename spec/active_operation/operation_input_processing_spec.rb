@@ -1,12 +1,12 @@
 require 'spec_helper'
 
-describe ComposableOperations::Operation, "input processing:" do
+describe ActiveOperation::Base, "input processing:" do
   describe "An operation that takes a Hash as input" do
     let(:input) { {food: "chunky bacon" } }
 
     subject(:operation) do
       Class.new(described_class) do
-        processes :some_hash
+        input :some_hash
         def execute
           some_hash
         end
@@ -21,7 +21,7 @@ describe ComposableOperations::Operation, "input processing:" do
 
     subject(:operation) do
       Class.new(described_class) do
-        processes :some_hash
+        input :some_hash
         property :default_food, default: "chunky bacon"
         def execute
           some_hash[:food] ||= default_food
@@ -37,7 +37,8 @@ describe ComposableOperations::Operation, "input processing:" do
   describe "An operation that takes two named arguments as input and sums them up" do
     subject(:operation) do
       Class.new(described_class) do
-        processes :first_operand, :second_operand
+        input :first_operand
+        input :second_operand
         def execute
           first_operand + second_operand
         end
@@ -50,9 +51,10 @@ describe ComposableOperations::Operation, "input processing:" do
   describe "An operation that takes two named arguments as input and simply returns all input arguments as output" do
     subject(:operation) do
       Class.new(described_class) do
-        processes :first_operand, :second_operand
+        input :first_operand
+        input :second_operand
         def execute
-          input
+          return first_operand, second_operand
         end
       end
     end
@@ -63,7 +65,8 @@ describe ComposableOperations::Operation, "input processing:" do
   describe "An operation that takes multiple arguments as input where the last of these arguments is a Hash" do
     subject(:operation) do
       Class.new(described_class) do
-        processes :first_operand, :second_operand
+        input :first_operand
+        input :second_operand
         property :operator, default: :+, converts: :to_sym, required: true
         def execute
           first_operand.public_send(operator, second_operand)
@@ -78,7 +81,7 @@ describe ComposableOperations::Operation, "input processing:" do
   describe "An operation that takes a named argument and uses the setter for the named argument" do
     subject(:operation) do
       Class.new(described_class) do
-        processes :some_value
+        input :some_value
         def execute
           self.some_value = "changed"
           self.some_value
@@ -92,8 +95,7 @@ describe ComposableOperations::Operation, "input processing:" do
   describe "An operation that manually defines a property for its first input argument that upcases its assgined value" do
     subject(:operation) do
       Class.new(described_class) do
-        property :text, converts: :upcase
-        processes :text
+        input :text, converts: :upcase
 
         def execute
           text
@@ -105,10 +107,10 @@ describe ComposableOperations::Operation, "input processing:" do
   end
 end
 
-describe ComposableOperations::ComposedOperation, "input processing:" do
+describe ActiveOperation::Pipeline, "input processing:" do
   describe "A composed operation that consists of a producer and a consumer" do
     let(:producer) do
-      Class.new(ComposableOperations::Operation) do
+      Class.new(ActiveOperation::Base) do
         def execute
           return 1, 2
         end
@@ -116,8 +118,9 @@ describe ComposableOperations::ComposedOperation, "input processing:" do
     end
 
     let(:consumer) do
-      Class.new(ComposableOperations::Operation) do
-        processes :first_operand, :second_operand
+      Class.new(ActiveOperation::Base) do
+        input :first_operand
+        input :second_operand
         def execute
           first_operand + second_operand
         end
@@ -137,4 +140,3 @@ describe ComposableOperations::ComposedOperation, "input processing:" do
     it { is_expected.to succeed_to_perform.and_return(3) }
   end
 end
-

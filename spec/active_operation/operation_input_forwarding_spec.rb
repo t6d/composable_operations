@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-describe ComposableOperations::ComposedOperation, "input forwarding:" do
+describe ActiveOperation::Pipeline, "input forwarding:" do
   describe "An operation pipeline that first constructs an array with two elements and then passes it to an operation that accepts two input parameters and returns the second one" do
 
     let(:array_generator) do
-      Class.new(ComposableOperations::Operation) do
+      Class.new(ActiveOperation::Base) do
         def execute
           [:first_element, :second_element]
         end
@@ -12,8 +12,9 @@ describe ComposableOperations::ComposedOperation, "input forwarding:" do
     end
 
     let(:extractor) do
-      Class.new(ComposableOperations::Operation) do
-        processes :first_parameter, :second_parameter
+      Class.new(ActiveOperation::Base) do
+        input :first_parameter
+        input :second_parameter
         def execute
           second_parameter
         end
@@ -21,7 +22,7 @@ describe ComposableOperations::ComposedOperation, "input forwarding:" do
     end
 
     subject(:pipeline) do
-      ComposableOperations::ComposedOperation.compose(array_generator, extractor)
+      ActiveOperation::Pipeline.compose(array_generator, extractor)
     end
 
     it "should return the correct element" do
@@ -32,7 +33,7 @@ describe ComposableOperations::ComposedOperation, "input forwarding:" do
 
   describe "An operation pipeline that first constructs an enumerator, then passes it from operation to operation and finally returns it as the result" do
     let(:enum_generator) do
-      Class.new(ComposableOperations::Operation) do
+      Class.new(ActiveOperation::Base) do
         def execute
           %w[just some text].enum_for(:each)
         end
@@ -40,8 +41,8 @@ describe ComposableOperations::ComposedOperation, "input forwarding:" do
     end
 
     let(:null_operation) do
-      Class.new(ComposableOperations::Operation) do
-        processes :enumerator
+      Class.new(ActiveOperation::Base) do
+        input :enumerator
         def execute
           enumerator
         end
@@ -49,7 +50,7 @@ describe ComposableOperations::ComposedOperation, "input forwarding:" do
     end
 
     subject(:pipeline) do
-      ComposableOperations::ComposedOperation.compose(enum_generator, null_operation)
+      ActiveOperation::Pipeline.compose(enum_generator, null_operation)
     end
 
     it "should actually return an enumerator" do
@@ -69,7 +70,7 @@ describe ComposableOperations::ComposedOperation, "input forwarding:" do
 
     let(:object_representable_as_array_generator) do
       spec_context = self
-      Class.new(ComposableOperations::Operation) do
+      Class.new(ActiveOperation::Base) do
         define_method(:execute) do
           spec_context.dummy
         end
@@ -77,8 +78,8 @@ describe ComposableOperations::ComposedOperation, "input forwarding:" do
     end
 
     let(:null_operation) do
-      Class.new(ComposableOperations::Operation) do
-        processes :object_representable_as_array
+      Class.new(ActiveOperation::Base) do
+        input :object_representable_as_array
         def execute
           object_representable_as_array
         end
@@ -86,7 +87,7 @@ describe ComposableOperations::ComposedOperation, "input forwarding:" do
     end
 
     subject(:pipeline) do
-      ComposableOperations::ComposedOperation.compose(object_representable_as_array_generator, null_operation)
+      ActiveOperation::Pipeline.compose(object_representable_as_array_generator, null_operation)
     end
 
     it "should actually return this object" do
@@ -95,4 +96,3 @@ describe ComposableOperations::ComposedOperation, "input forwarding:" do
     end
   end
 end
-

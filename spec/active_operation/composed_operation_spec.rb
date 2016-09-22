@@ -1,8 +1,8 @@
 require "spec_helper"
 
-describe ComposableOperations::ComposedOperation do
+describe ActiveOperation::Pipeline do
   let(:string_generator) do
-    Class.new(ComposableOperations::Operation) do
+    Class.new(ActiveOperation::Base) do
       def self.name
         "StringGenerator"
       end
@@ -14,8 +14,8 @@ describe ComposableOperations::ComposedOperation do
   end
 
   let(:string_capitalizer) do
-    Class.new(ComposableOperations::Operation) do
-      processes :text
+    Class.new(ActiveOperation::Base) do
+      input :text
 
       def self.name
         "StringCapitalizer"
@@ -28,8 +28,8 @@ describe ComposableOperations::ComposedOperation do
   end
 
   let(:string_multiplier) do
-    Class.new(ComposableOperations::Operation) do
-      processes :text
+    Class.new(ActiveOperation::Base) do
+      input :text
       property :multiplicator, default: 1, converts: :to_i, required: true
       property :separator, default: ' ', converts: :to_s, required: true
 
@@ -44,7 +44,7 @@ describe ComposableOperations::ComposedOperation do
   end
 
   let(:halting_operation) do
-    Class.new(ComposableOperations::Operation) do
+    Class.new(ActiveOperation::Base) do
       def self.name
         "HaltingOperation"
       end
@@ -148,7 +148,7 @@ describe ComposableOperations::ComposedOperation do
     end
 
     it "should have an input argument with the same name as the first operation" do
-      expect(composed_operation.arguments).to eq(string_capitalizer.arguments)
+      expect(composed_operation.inputs.map(&:name)).to eq(string_capitalizer.inputs.map(&:name))
     end
 
     it { is_expected.to succeed_to_perform.when_initialized_with("hello").and_return("HELLO HELLO") }

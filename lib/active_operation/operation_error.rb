@@ -1,4 +1,4 @@
-module ComposableOperations
+module ActiveOperation
   class OperationError < RuntimeError
   end
 end

@@ -1,4 +1,4 @@
-# ComposableOperations
+# ActiveOperation
 
 Composable Operations is a tool set for creating operations and assembling
 multiple of these operations in operation pipelines.  An operation is, at its
@@ -24,21 +24,21 @@ Or install it yourself as:
 
 ## Usage
 
-Operations can be defined by subclassing `ComposableOperations::Operation` and
-operation pipelines by subclassing `ComposableOperations::ComposedOperation`.
+Operations can be defined by subclassing `ActiveOperation::Base` and
+operation pipelines by subclassing `ActiveOperation::Pipeline`.
 
 ### Defining an Operation
 
 To define an operation, two steps are necessary:
 
-1. create a new subclass of `ComposableOperations::Operations`, and
+1. create a new subclass of `ActiveOperation::Bases`, and
 2. implement the `#execute` method.
 
 The listing below shows an operation that extracts a timestamp in the format
 `yyyy-mm-dd` from a string.
 
 ```ruby
-class DateExtractor < ComposableOperations::Operation
+class DateExtractor < ActiveOperation::Base
 
   processes :text
 
@@ -88,7 +88,7 @@ into actual `Time` objects. The following listing provides a potential
 implementation of such an operation.
 
 ```ruby
-class DateArrayToTimeObjectConverter < ComposableOperations::Operation
+class DateArrayToTimeObjectConverter < ActiveOperation::Base
 
   processes :collection_of_date_arrays
 
@@ -105,14 +105,14 @@ Using these two operations, it is possible to create a composed operation that
 extracts dates from a string and directly converts them into `Time` objects. To
 define a composed operation, two steps are necessary:
 
-1. create a subclass of `ComposableOperations::ComposedOperation`, and
+1. create a subclass of `ActiveOperation::Pipeline`, and
 2. use the macro method `use` to assemble the operation.
 
 The listing below shows how to assemble the two operations, `DateExtractor` and
 `DateArrayToTimeObjectConverter`, into a composed operation named `DateParser`.
 
 ```ruby
-class DateParser < ComposableOperations::ComposedOperation
+class DateParser < ActiveOperation::Pipeline
 
   use DateExtractor
   use DateArrayToTimeObjectConverter
@@ -170,7 +170,7 @@ parser.succeeded? # => false
 parser.halted? # => false
 parser.failed? # => true
 
-StrictDateParser.perform("") # => ComposableOperations::OperationError: no timestamp found
+StrictDateParser.perform("") # => ActiveOperation::BaseError: no timestamp found
 
 parser = LessStricDateParser.new("")
 parser.message # => "no timestamp found"
@@ -202,7 +202,7 @@ parser.message # => "no timestamp found"
 parser.perform # => nil
 parser.failed? # => true
 
-StrictDateParser.perform("") # => ComposableOperations::OperationError: no timestamp found
+StrictDateParser.perform("") # => ActiveOperation::BaseError: no timestamp found
 ```
 
 ### Configuring Operations
@@ -215,7 +215,7 @@ is set to 2 by default but can easily be changed by supplying an options hash
 to the initializer.
 
 ```ruby
-class Indention < ComposableOperations::Operation
+class Indention < ActiveOperation::Base
 
   processes :text
 
@@ -238,7 +238,7 @@ the `.use` method with a hash of options as the second argument. See the
 listing below for an example.
 
 ```ruby
-class SomeComposedOperation < ComposableOperations::ComposedOperation
+class SomeComposedOperation < ActiveOperation::Pipeline
 
   # ...
   use Indention, indent: 4

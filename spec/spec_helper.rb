@@ -2,8 +2,8 @@ require 'bundler/setup'
 require 'rspec'
 require 'pry'
 
-require 'composable_operations'
-require 'composable_operations/matcher'
+require 'active_operation'
+require 'active_operation/matcher'
 
 Dir[File.join(File.dirname(__FILE__), 'support', '**', '*.rb')].each { |f| require f }
 

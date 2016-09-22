@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ComposableOperations::Operation do
+describe ActiveOperation::Base do
   context "that always returns nil when executed" do
     let(:nil_operation) do
        Class.new(described_class) do
@@ -18,9 +18,9 @@ describe ComposableOperations::Operation do
   context "that always halts and returns its original input" do
     let(:halting_operation) do
       Class.new(described_class) do
-        processes :message
+        input :message
         def execute
-          halt "Full stop!", input.first
+          halt message
         end
       end
     end
@@ -61,7 +61,7 @@ describe ComposableOperations::Operation do
     end
 
     it "should have a result" do
-      expect(simple_operation_instance.result).to be
+      expect(simple_operation_instance.output).to be
     end
 
     it "should have succeeded" do
@@ -85,22 +85,12 @@ describe ComposableOperations::Operation do
         simple_operation_with_preparator_and_finalizer.perform
       end
     end
-
-    context "when extended with a finalizer that checks that the result is not an empty string" do
-      subject(:simple_operation_with_sanity_check) do
-        Class.new(simple_operation) do
-          after { fail "the operational result is an empty string" if self.result == "" }
-        end
-      end
-
-      it { is_expected.to fail_to_perform.because("the operational result is an empty string") }
-    end
   end
 
   context "that can be parameterized" do
     subject(:string_multiplier) do
       Class.new(described_class) do
-        processes :text
+        input :text
         property :multiplier, :default => 3
 
         def execute
@@ -113,10 +103,11 @@ describe ComposableOperations::Operation do
     it { is_expected.to succeed_to_perform.when_initialized_with("-", multiplier: 5).and_return("-----") }
   end
 
-  context "that processes two values (a string and a multiplier)" do
+  context "that takes two values (a string and a multiplier)" do
     subject(:string_multiplier) do
       Class.new(described_class) do
-        processes :string, :multiplier
+        input :string
+        input :multiplier
 
         def execute
           string * multiplier
@@ -130,7 +121,7 @@ describe ComposableOperations::Operation do
   context "inheritance" do
     let(:base_operation) do
       Class.new(described_class) do
-        processes :text
+        input :text
       end
     end
 
@@ -144,7 +135,7 @@ describe ComposableOperations::Operation do
 
     let(:sub_operation_with_different_input) do
       Class.new(base_operation) do
-        processes :text, :multiplier
+        input :multiplier
         def execute
           text * multiplier
         end
@@ -155,8 +146,8 @@ describe ComposableOperations::Operation do
       subject! { base_operation }
 
       it "should take one argument" do
-        expect(base_operation.arity).to eq(1)
-        expect(base_operation.arguments).to eq([:text])
+        expect(base_operation.inputs.count).to eq(1)
+        expect(base_operation.inputs.map(&:name)).to eq([:text])
       end
     end
 
@@ -164,8 +155,8 @@ describe ComposableOperations::Operation do
       subject! { sub_operation }
 
       it "should take one argument" do
-        expect(base_operation.arity).to eq(1)
-        expect(base_operation.arguments).to eq([:text])
+        expect(base_operation.inputs.count).to eq(1)
+        expect(base_operation.inputs.map(&:name)).to eq([:text])
       end
 
       it { is_expected.to succeed_to_perform.when_initialized_with("lorem ipsum").and_return("LOREM IPSUM") }
@@ -175,17 +166,16 @@ describe ComposableOperations::Operation do
       subject! { sub_operation_with_different_input }
 
       it "should take two arguments" do
-        expect(sub_operation_with_different_input.arity).to eq(2)
-        expect(sub_operation_with_different_input.arguments).to eq([:text, :multiplier])
+        expect(sub_operation_with_different_input.inputs.count).to eq(2)
+        expect(sub_operation_with_different_input.inputs.map(&:name)).to eq([:text, :multiplier])
       end
 
       it "should not influence the arguments of base operation" do
-        expect(base_operation.arity).to eq(1)
-        expect(base_operation.arguments).to eq([:text])
+        expect(base_operation.inputs.count).to eq(1)
+        expect(base_operation.inputs.map(&:name)).to eq([:text])
       end
 
       it { is_expected.to succeed_to_perform.when_initialized_with("-", 3).and_return("---") }
     end
   end
 end
-

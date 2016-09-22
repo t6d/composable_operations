@@ -1,4 +1,4 @@
-module ComposableOperations
+module ActiveOperation
   module Matcher
     module UtilizeOperation
 
@@ -18,12 +18,12 @@ module ComposableOperations
           true
         end
 
-        def result
+        def output
           Object.new
         end
 
         def perform
-          result
+          output
         end
       end
 
@@ -47,7 +47,7 @@ module ComposableOperations
             @tested_instance = class_or_instance
           end
 
-          allow(Operation).to receive(:new).and_return(DummyOperation.new)
+          allow(Base).to receive(:new).and_return(DummyOperation.new)
           composite_operations.each do |composite_operation|
             dummy_operation = DummyOperation.new
             expect(dummy_operation).to receive(:perform).and_call_original
@@ -90,6 +90,5 @@ module ComposableOperations
 end
 
 RSpec.configure do |config|
-  config.include ComposableOperations::Matcher::UtilizeOperation
+  config.include ActiveOperation::Matcher::UtilizeOperation
 end
-
